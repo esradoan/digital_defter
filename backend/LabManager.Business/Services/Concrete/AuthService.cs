@@ -1,0 +1,106 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using LabManager.Business.DTOs.Auth;
+using LabManager.Business.Services.Interfaces;
+using LabManager.DataAccess.Repositories.Interfaces;
+using LabManager.Entity.Entities;
+using LabManager.Entity.Enums;
+
+namespace LabManager.Business.Services.Concrete;
+
+public class AuthService : IAuthService
+{
+    private readonly IRepository<User> _userRepository;
+    private readonly IConfiguration _configuration;
+
+    public AuthService(IRepository<User> userRepository, IConfiguration configuration)
+    {
+        _userRepository = userRepository;
+        _configuration = configuration;
+    }
+
+    public async Task<LoginResponseDto?> LoginAsync(LoginDto dto)
+    {
+        // Kullanıcıyı bul
+        var users = await _userRepository.FindAsync(u => u.Username == dto.Username);
+        var user = users.FirstOrDefault();
+
+        if (user == null)
+            return null;
+
+        // Şifre kontrolü (BCrypt)
+        if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
+            return null;
+
+        // Son login tarihini güncelle
+        user.LastLogin = DateTime.UtcNow;
+        await _userRepository.UpdateAsync(user);
+
+        // Token oluştur
+        var token = GenerateJwtToken(user);
+
+        return new LoginResponseDto
+        {
+            Token = token,
+            Username = user.Username,
+            Email = user.Email,
+            FullName = user.FullName,
+            Role = user.Role.ToString()
+        };
+    }
+
+    public async Task<User?> RegisterAsync(RegisterDto dto)
+    {
+        // Username veya Email zaten var mı kontrol et
+        var existingUser = await _userRepository.ExistsAsync(u => 
+            u.Username == dto.Username || u.Email == dto.Email);
+
+        if (existingUser)
+            return null;
+
+        // Yeni kullanıcı oluştur
+        var user = new User
+        {
+            Username = dto.Username,
+            Email = dto.Email,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+            FullName = dto.FullName,
+            Role = UserRole.Viewer, // Varsayılan rol
+            CreatedAt = DateTime.UtcNow
+        };
+
+        return await _userRepository.AddAsync(user);
+    }
+
+    public string GenerateJwtToken(User user)
+    {
+        var jwtSettings = _configuration.GetSection("JwtSettings");
+        var secretKey = jwtSettings["SecretKey"] ?? throw new Exception("JWT SecretKey bulunamadı");
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var claims = new[]
+        {
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Role, user.Role.ToString()),
+            new Claim("FullName", user.FullName),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+        var token = new JwtSecurityToken(
+            issuer: jwtSettings["Issuer"],
+            audience: jwtSettings["Audience"],
+            claims: claims,
+            expires: DateTime.UtcNow.AddMinutes(Convert.ToInt32(jwtSettings["ExpirationMinutes"])),
+            signingCredentials: credentials
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+}
+
