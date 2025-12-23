@@ -6,6 +6,7 @@ public class ProductDto
     public string Name { get; set; } = string.Empty;
     public int CategoryId { get; set; }
     public string CategoryName { get; set; } = string.Empty;
+    public string? SerialNumber { get; set; } // Yeni alan
     public string? CatalogNumber { get; set; }
     public string? Brand { get; set; }
     public string? LotNumber { get; set; }

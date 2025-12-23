@@ -8,7 +8,7 @@ namespace LabManager.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize] // Tüm endpoint'ler için authentication zorunlu
+// [Authorize] // Tüm endpoint'ler için authentication zorunlu
 public class ProductsController : ControllerBase
 {
     private readonly IProductService _productService;
@@ -63,7 +63,11 @@ public class ProductsController : ControllerBase
         }
         catch (Exception ex)
         {
-            return BadRequest(ApiResponse<ProductDto>.ErrorResponse(ex.Message));
+            // Inner exception'ı da göster
+            var errorMessage = ex.InnerException != null 
+                ? $"{ex.Message} | Inner: {ex.InnerException.Message}" 
+                : ex.Message;
+            return BadRequest(ApiResponse<ProductDto>.ErrorResponse(errorMessage));
         }
     }
 

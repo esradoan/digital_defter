@@ -49,6 +49,7 @@ public class ProductService : IProductService
         {
             Name = dto.Name,
             CategoryId = dto.CategoryId,
+            SerialNumber = dto.SerialNumber, // Yeni eklendi
             CatalogNumber = dto.CatalogNumber,
             Brand = dto.Brand,
             LotNumber = dto.LotNumber,
@@ -78,6 +79,7 @@ public class ProductService : IProductService
 
         product.Name = dto.Name;
         product.CategoryId = dto.CategoryId;
+        product.SerialNumber = dto.SerialNumber;
         product.CatalogNumber = dto.CatalogNumber;
         product.Brand = dto.Brand;
         product.LotNumber = dto.LotNumber;
@@ -157,7 +159,12 @@ public class ProductService : IProductService
     // Helper: Entity'den DTO'ya dönüşüm
     private async Task<ProductDto> MapToDto(Product product)
     {
-        var category = await _categoryRepository.GetByIdAsync(product.CategoryId);
+        Category? category = null;
+        if (product.CategoryId.HasValue)
+        {
+            category = await _categoryRepository.GetByIdAsync(product.CategoryId.Value);
+        }
+
         StorageLocation? storageLocation = null;
         
         if (product.StorageLocationId.HasValue)
@@ -171,17 +178,18 @@ public class ProductService : IProductService
         return new ProductDto
         {
             Id = product.Id,
-            Name = product.Name,
-            CategoryId = product.CategoryId,
-            CategoryName = category?.Name ?? "Bilinmiyor",
+            Name = product.Name ?? string.Empty,
+            CategoryId = product.CategoryId ?? 0,
+            CategoryName = category?.Name ?? "Kategorisiz",
+            SerialNumber = product.SerialNumber,
             CatalogNumber = product.CatalogNumber,
             Brand = product.Brand,
             LotNumber = product.LotNumber,
             ExpiryDate = product.ExpiryDate,
             Quantity = product.Quantity,
-            Unit = product.Unit,
+            Unit = product.Unit ?? string.Empty,
             MinStockLevel = product.MinStockLevel,
-            StorageCondition = product.StorageCondition.ToString(),
+            StorageCondition = product.StorageCondition?.ToString() ?? string.Empty,
             StorageLocationId = product.StorageLocationId,
             StorageLocationName = storageLocation?.Name,
             DetailedLocation = product.DetailedLocation,

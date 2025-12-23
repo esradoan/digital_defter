@@ -5,8 +5,9 @@ namespace LabManager.Entity.Entities;
 public class Product : BaseEntity
 {
     // Temel Bilgiler
-    public string Name { get; set; } = string.Empty;
-    public int CategoryId { get; set; }
+    public string? Name { get; set; }
+    public int? CategoryId { get; set; }
+    public string? SerialNumber { get; set; } // Yeni alan
     public string? CatalogNumber { get; set; }
     public string? Brand { get; set; }
     public string? LotNumber { get; set; }
@@ -14,11 +15,11 @@ public class Product : BaseEntity
     // Miktar ve Stok
     public DateTime? ExpiryDate { get; set; }
     public decimal Quantity { get; set; }
-    public string Unit { get; set; } = string.Empty;
+    public string? Unit { get; set; }
     public decimal? MinStockLevel { get; set; }
     
     // Saklama Bilgileri
-    public StorageCondition StorageCondition { get; set; }
+    public StorageCondition? StorageCondition { get; set; }
     public int? StorageLocationId { get; set; }
     public string? DetailedLocation { get; set; }
     public DateTime? OpeningDate { get; set; }
@@ -29,7 +30,7 @@ public class Product : BaseEntity
     public string? Supplier { get; set; }
 
     // Navigation properties
-    public Category Category { get; set; } = null!;
+    public Category? Category { get; set; }
     public StorageLocation? StorageLocation { get; set; }
     public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();
 }

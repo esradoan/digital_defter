@@ -8,12 +8,13 @@ public class UpdateProductDto
     [Required]
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Ürün adı zorunludur")]
     [StringLength(200)]
-    public string Name { get; set; } = string.Empty;
+    public string? Name { get; set; }
 
-    [Required(ErrorMessage = "Kategori seçimi zorunludur")]
-    public int CategoryId { get; set; }
+    public int? CategoryId { get; set; }
+    
+    [StringLength(100)]
+    public string? SerialNumber { get; set; } // Yeni alan
 
     [StringLength(100)]
     public string? CatalogNumber { get; set; }
@@ -26,18 +27,14 @@ public class UpdateProductDto
 
     public DateTime? ExpiryDate { get; set; }
 
-    [Required(ErrorMessage = "Miktar zorunludur")]
-    [Range(0, double.MaxValue, ErrorMessage = "Miktar 0'dan büyük olmalıdır")]
     public decimal Quantity { get; set; }
 
-    [Required(ErrorMessage = "Birim zorunludur")]
     [StringLength(50)]
-    public string Unit { get; set; } = string.Empty;
+    public string? Unit { get; set; }
 
     public decimal? MinStockLevel { get; set; }
 
-    [Required(ErrorMessage = "Saklama koşulu zorunludur")]
-    public StorageCondition StorageCondition { get; set; }
+    public StorageCondition? StorageCondition { get; set; }
 
     public int? StorageLocationId { get; set; }
 

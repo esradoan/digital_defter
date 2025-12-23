@@ -8,7 +8,7 @@ namespace LabManager.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+// [Authorize]
 public class CategoriesController : ControllerBase
 {
     private readonly ICategoryService _categoryService;

@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.EntityFrameworkCore;
 using LabManager.DataAccess.Context;
 using LabManager.DataAccess.Repositories.Interfaces;
 using LabManager.DataAccess.Repositories.Concrete;
@@ -14,15 +14,21 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. DATABASE CONFIGURATION
 // ====================
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+// var connectionString = "server=127.0.0.1;port=3306;database=labmanager_db;uid=root;pwd=1234;SslMode=None;AllowPublicKeyRetrieval=True;Pooling=False;";
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
+{
     options.UseMySql(
         connectionString,
-        ServerVersion.AutoDetect(connectionString)
-    )
-);
+        new MySqlServerVersion(new Version(8, 0, 21)),
+        mySqlOptions => mySqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 3,
+            maxRetryDelay: TimeSpan.FromSeconds(5),
+            errorNumbersToAdd: null)
+    );
+}, ServiceLifetime.Scoped);
 
 // ====================
-// 2. REPOSITORY REGISTRATION (Dependency Injection)
+// 2. REPOSITORY REGISTRATION
 // ====================
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -32,6 +38,7 @@ builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IStorageLocationService, StorageLocationService>();
 
 // ====================
 // 4. JWT AUTHENTICATION
@@ -67,7 +74,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -105,11 +112,21 @@ app.MapControllers();
 // Test endpoint
 app.MapGet("/", () => "🧬 Lab Manager API is running!");
 
-// Seed Data
-using (var scope = app.Services.CreateScope())
+// ====================
+// 8. SEED DATA
+// ====================
+try
 {
-    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    LabManager.DataAccess.Data.DbSeeder.SeedData(context);
+    using (var scope = app.Services.CreateScope())
+    {
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        LabManager.DataAccess.Data.DbSeeder.SeedData(context);
+    }
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"⚠️  Uyarı: Seed data eklenemedi. MySQL çalışıyor mu?");
+    Console.WriteLine($"   Hata: {ex.Message}");
 }
 
 app.Run();
