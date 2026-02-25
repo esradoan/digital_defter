@@ -1,8 +1,10 @@
-import { Home, Box, Database, Settings, LogOut } from 'lucide-react';
+import { Home, Box, Database, Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 
 export default function Sidebar() {
     const location = useLocation();
+    const { theme, toggleTheme } = useTheme();
 
     const menuItems = [
         { icon: Home, label: 'Panel', path: '/' },
@@ -33,6 +35,12 @@ export default function Sidebar() {
             </nav>
 
             <div className="sidebar-footer">
+                <button onClick={toggleTheme} className="nav-item full-width">
+                    {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                    <span className="nav-label">
+                        {theme === 'dark' ? 'Aydınlık Mod' : 'Karanlık Mod'}
+                    </span>
+                </button>
                 <button className="nav-item full-width">
                     <LogOut size={20} />
                     <span className="nav-label">Çıkış Yap</span>

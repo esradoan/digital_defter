@@ -118,7 +118,7 @@ export default function Cabinets() {
                                     </h3>
                                 </Link>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <span style={{ fontSize: '0.875rem', padding: '4px 8px', backgroundColor: '#334155', borderRadius: '4px' }}>
+                                    <span style={{ fontSize: '0.875rem', padding: '4px 8px', backgroundColor: 'var(--border-color)', color: 'var(--text-main)', borderRadius: '6px', fontWeight: '500' }}>
                                         {cabinet.type === 0 ? 'Buzdolabı' : cabinet.type === 1 ? 'Derin Dondurucu' : 'Oda'}
                                     </span>
                                     <button

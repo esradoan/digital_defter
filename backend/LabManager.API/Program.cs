@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using LabManager.DataAccess.Context;
 using LabManager.DataAccess.Repositories.Interfaces;
 using LabManager.DataAccess.Repositories.Concrete;
@@ -14,21 +14,15 @@ var builder = WebApplication.CreateBuilder(args);
 // 1. DATABASE CONFIGURATION
 // ====================
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-// var connectionString = "server=127.0.0.1;port=3306;database=labmanager_db;uid=root;pwd=1234;SslMode=None;AllowPublicKeyRetrieval=True;Pooling=False;";
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
     options.UseMySql(
         connectionString,
-        new MySqlServerVersion(new Version(8, 0, 21)),
-        mySqlOptions => mySqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 3,
-            maxRetryDelay: TimeSpan.FromSeconds(5),
-            errorNumbersToAdd: null)
-    );
-}, ServiceLifetime.Scoped);
+        ServerVersion.AutoDetect(connectionString)
+    )
+);
 
 // ====================
-// 2. REPOSITORY REGISTRATION
+// 2. REPOSITORY REGISTRATION (Dependency Injection)
 // ====================
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
@@ -74,7 +68,11 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
+        policy.WithOrigins(
+                  "http://localhost:3000",
+                  "http://localhost:5173",
+                  "http://localhost:5174"
+              )
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
@@ -111,22 +109,5 @@ app.MapControllers();
 
 // Test endpoint
 app.MapGet("/", () => "🧬 Lab Manager API is running!");
-
-// ====================
-// 8. SEED DATA
-// ====================
-try
-{
-    using (var scope = app.Services.CreateScope())
-    {
-        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        LabManager.DataAccess.Data.DbSeeder.SeedData(context);
-    }
-}
-catch (Exception ex)
-{
-    Console.WriteLine($"⚠️  Uyarı: Seed data eklenemedi. MySQL çalışıyor mu?");
-    Console.WriteLine($"   Hata: {ex.Message}");
-}
 
 app.Run();
