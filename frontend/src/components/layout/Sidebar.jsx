@@ -1,6 +1,14 @@
 import { Home, Box, Database, Settings, LogOut, Sun, Moon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 export default function Sidebar() {
     const location = useLocation();
@@ -14,45 +22,65 @@ export default function Sidebar() {
     ];
 
     return (
-        <div className="w-sidebar bg-card border-r border-border-custom flex flex-col h-screen fixed left-0 top-0 transition-colors duration-300">
-            {/* Header */}
-            <div className="p-6 border-b border-border-custom">
-                <h2 className="text-xl font-bold text-primary m-0 flex items-center gap-2">
-                    🧪 LabManager
-                </h2>
-            </div>
+        <TooltipProvider>
+            <div className="w-sidebar bg-card border-r border-border flex flex-col h-screen fixed left-0 top-0 transition-colors duration-300">
+                {/* Header */}
+                <div className="p-6">
+                    <h2 className="text-xl font-bold text-primary m-0 flex items-center gap-2">
+                        🧪 LabManager
+                    </h2>
+                </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 p-4 flex flex-col gap-2">
-                {menuItems.map((item) => (
-                    <Link
-                        key={item.path}
-                        to={item.path}
-                        className={`flex items-center gap-3 py-3 px-4 rounded-lg text-muted transition-all duration-200 hover:bg-primary hover:text-white ${location.pathname === item.path ? 'bg-primary text-white' : ''
-                            }`}
+                <Separator />
+
+                {/* Navigation */}
+                <nav className="flex-1 p-3 flex flex-col gap-1 mt-2">
+                    {menuItems.map((item) => {
+                        const isActive = location.pathname === item.path;
+                        return (
+                            <Tooltip key={item.path}>
+                                <TooltipTrigger asChild>
+                                    <Link to={item.path}>
+                                        <Button
+                                            variant={isActive ? 'default' : 'ghost'}
+                                            className={`w-full justify-start gap-3 h-11 text-[15px] ${isActive
+                                                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                                                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                                                }`}
+                                        >
+                                            <item.icon size={20} />
+                                            <span>{item.label}</span>
+                                        </Button>
+                                    </Link>
+                                </TooltipTrigger>
+                                <TooltipContent side="right">
+                                    <p>{item.label}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        );
+                    })}
+                </nav>
+
+                {/* Footer */}
+                <div className="p-3 space-y-1">
+                    <Separator className="mb-3" />
+                    <Button
+                        variant="ghost"
+                        onClick={toggleTheme}
+                        className="w-full justify-start gap-3 h-11 text-muted-foreground hover:text-foreground hover:bg-accent"
                     >
-                        <item.icon size={20} />
-                        <span className="font-medium">{item.label}</span>
-                    </Link>
-                ))}
-            </nav>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-border-custom">
-                <button
-                    onClick={toggleTheme}
-                    className="flex items-center gap-3 py-3 px-4 rounded-lg text-muted w-full transition-all duration-200 hover:bg-hover-bg hover:text-primary"
-                >
-                    {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                    <span className="font-medium">
-                        {theme === 'dark' ? 'Aydınlık Mod' : 'Karanlık Mod'}
-                    </span>
-                </button>
-                <button className="flex items-center gap-3 py-3 px-4 rounded-lg text-muted w-full transition-all duration-200 hover:bg-hover-bg hover:text-primary">
-                    <LogOut size={20} />
-                    <span className="font-medium">Çıkış Yap</span>
-                </button>
+                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                        <span>{theme === 'dark' ? 'Aydınlık Mod' : 'Karanlık Mod'}</span>
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        className="w-full justify-start gap-3 h-11 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    >
+                        <LogOut size={20} />
+                        <span>Çıkış Yap</span>
+                    </Button>
+                </div>
             </div>
-        </div>
+        </TooltipProvider>
     );
 }

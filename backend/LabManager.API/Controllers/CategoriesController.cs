@@ -43,5 +43,22 @@ public class CategoriesController : ControllerBase
 
         return Ok(ApiResponse<CategoryDto>.SuccessResponse(category));
     }
+
+    /// <summary>
+    /// Yeni kategori oluştur
+    /// </summary>
+    [HttpPost]
+    public async Task<ActionResult<ApiResponse<CategoryDto>>> Create([FromBody] CreateCategoryRequest request)
+    {
+        var category = await _categoryService.CreateAsync(request.Name, request.Description, request.Icon);
+        return Ok(ApiResponse<CategoryDto>.SuccessResponse(category));
+    }
+}
+
+public class CreateCategoryRequest
+{
+    public string Name { get; set; } = string.Empty;
+    public string? Description { get; set; }
+    public string? Icon { get; set; }
 }
 

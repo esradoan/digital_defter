@@ -9,6 +9,11 @@ const categoryService = {
     getById: async (id) => {
         const response = await api.get(`/categories/${id}`);
         return response.data.data || response.data;
+    },
+
+    create: async (data) => {
+        const response = await api.post('/categories', data);
+        return response.data.data || response.data;
     }
 };
 

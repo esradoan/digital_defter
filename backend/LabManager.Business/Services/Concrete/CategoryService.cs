@@ -57,5 +57,26 @@ public class CategoryService : ICategoryService
             ProductCount = productCount
         };
     }
+
+    public async Task<CategoryDto> CreateAsync(string name, string? description = null, string? icon = null)
+    {
+        var category = new Category
+        {
+            Name = name,
+            Description = description,
+            Icon = icon
+        };
+
+        var created = await _categoryRepository.AddAsync(category);
+
+        return new CategoryDto
+        {
+            Id = created.Id,
+            Name = created.Name,
+            Description = created.Description,
+            Icon = created.Icon,
+            ProductCount = 0
+        };
+    }
 }
 

@@ -1,7 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Thermometer, Box, Archive, X, Save, Edit as EditIcon, Plus } from 'lucide-react';
+import { Thermometer, Box, Archive, Plus, Edit as EditIcon, Save } from 'lucide-react';
 import cabinetService from '../services/cabinetService';
 import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 export default function Cabinets() {
     const [cabinets, setCabinets] = useState([]);
@@ -75,146 +87,171 @@ export default function Cabinets() {
         }
     };
 
-    if (loading) return <div className="p-4 text-muted">Yükleniyor...</div>;
-    if (error) return <div className="p-4 text-red-500">{error}</div>;
+    const getTypeLabel = (type) => {
+        const labels = {
+            0: 'Buzdolabı',
+            1: 'Derin Dondurucu',
+            2: 'Ultra Derin Dondurucu',
+            3: 'Oda'
+        };
+        return labels[type] || 'Bilinmiyor';
+    };
+
+    const getTypeVariant = (type) => {
+        const variants = {
+            0: 'bg-sky-500/15 text-sky-400 border-sky-500/20',
+            1: 'bg-blue-500/15 text-blue-400 border-blue-500/20',
+            2: 'bg-violet-500/15 text-violet-400 border-violet-500/20',
+            3: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20'
+        };
+        return variants[type] || '';
+    };
+
+    if (loading) return <div className="p-4 text-muted-foreground">Yükleniyor...</div>;
+    if (error) return <div className="p-4 text-destructive">{error}</div>;
 
     return (
         <div>
             {/* Header */}
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold m-0 text-main">Dolaplar</h1>
-                <button
-                    onClick={handleCreateClick}
-                    className="px-5 py-2.5 bg-primary text-white rounded-lg font-bold flex items-center gap-2 hover:bg-primary-dark transition-colors"
-                >
+                <div>
+                    <h1 className="text-3xl font-bold text-foreground">Dolaplar</h1>
+                    <p className="text-muted-foreground mt-1">Tüm depolama alanlarınızı yönetin</p>
+                </div>
+                <Button onClick={handleCreateClick} className="gap-2 shadow-md shadow-primary/20">
                     <Plus size={20} /> Yeni Dolap
-                </button>
+                </Button>
             </div>
 
             {/* Empty State */}
             {cabinets.length === 0 ? (
-                <div className="p-10 text-center text-muted bg-card rounded-xl">
-                    <Archive size={48} className="mb-4 opacity-50 mx-auto" />
-                    <p>Henüz hiç dolap eklenmemiş.</p>
-                </div>
+                <Card className="border-dashed">
+                    <CardContent className="flex flex-col items-center justify-center py-16">
+                        <Archive size={48} className="mb-4 text-muted-foreground opacity-50" />
+                        <p className="text-muted-foreground text-lg">Henüz hiç dolap eklenmemiş.</p>
+                        <Button onClick={handleCreateClick} variant="outline" className="mt-4 gap-2">
+                            <Plus size={16} /> İlk dolabınızı ekleyin
+                        </Button>
+                    </CardContent>
+                </Card>
             ) : (
                 /* Cabinet Grid */
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {cabinets.map((cabinet) => (
-                        <div
+                        <Card
                             key={cabinet.id}
-                            className="bg-card rounded-xl p-5 border border-border-custom relative transition-colors duration-300 hover:border-primary/30"
+                            className="group hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
                         >
-                            <div className="flex justify-between items-start mb-4">
-                                <Link to={`/cabinets/${cabinet.id}`} className="flex-1">
-                                    <h3 className="m-0 text-lg font-semibold cursor-pointer flex items-center gap-2 text-main hover:text-primary transition-colors">
-                                        {cabinet.name}
-                                    </h3>
-                                </Link>
-                                <div className="flex items-center gap-2.5">
-                                    <span className="text-sm px-2 py-1 bg-border-custom text-main rounded-md font-medium">
-                                        {cabinet.type === 0 ? 'Buzdolabı' : cabinet.type === 1 ? 'Derin Dondurucu' : 'Oda'}
-                                    </span>
-                                    <button
-                                        onClick={(e) => handleEditClick(e, cabinet)}
-                                        className="text-muted p-1 hover:text-primary transition-colors"
-                                        title="Düzenle"
-                                    >
-                                        <EditIcon size={18} />
-                                    </button>
+                            <CardHeader className="pb-3">
+                                <div className="flex justify-between items-start">
+                                    <Link to={`/cabinets/${cabinet.id}`} className="flex-1">
+                                        <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors cursor-pointer">
+                                            {cabinet.name}
+                                        </h3>
+                                    </Link>
+                                    <div className="flex items-center gap-2">
+                                        <Badge variant="outline" className={getTypeVariant(cabinet.type)}>
+                                            {getTypeLabel(cabinet.type)}
+                                        </Badge>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                            onClick={(e) => handleEditClick(e, cabinet)}
+                                            title="Düzenle"
+                                        >
+                                            <EditIcon size={16} />
+                                        </Button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div className="flex gap-4 text-muted text-sm">
-                                <div className="flex items-center gap-1.5">
-                                    <Thermometer size={16} />
-                                    <span>{cabinet.temperatureCondition || 'Belirtilmedi'}</span>
+                            </CardHeader>
+                            <CardContent className="pt-0">
+                                <div className="flex gap-4 text-muted-foreground text-sm">
+                                    <div className="flex items-center gap-1.5">
+                                        <Thermometer size={14} />
+                                        <span>{cabinet.temperatureCondition || 'Belirtilmedi'}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <Box size={14} />
+                                        <span>{cabinet.capacityInfo || 'Kapasite Yok'}</span>
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-1.5">
-                                    <Box size={16} />
-                                    <span>{cabinet.capacityInfo || 'Kapasite Yok'}</span>
-                                </div>
-                            </div>
-                        </div>
+                            </CardContent>
+                        </Card>
                     ))}
                 </div>
             )}
 
-            {/* Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
-                    <div className="bg-card p-6 rounded-xl w-full max-w-lg border border-border-custom shadow-2xl">
-                        {/* Modal Header */}
-                        <div className="flex justify-between items-center mb-5">
-                            <h2 className="m-0 text-2xl font-bold text-main">
-                                {editingId ? 'Dolabı Düzenle' : 'Yeni Dolap Ekle'}
-                            </h2>
-                            <button onClick={handleCloseModal} className="p-2 rounded-lg hover:bg-border-custom transition-colors">
-                                <X size={24} className="text-muted" />
-                            </button>
+            {/* Modal — shadcn Dialog */}
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent className="sm:max-w-lg bg-card border-border">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl">
+                            {editingId ? 'Dolabı Düzenle' : 'Yeni Dolap Ekle'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            Dolap bilgilerini girin veya güncelleyin.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-2">
+                        <div>
+                            <label className="block text-sm text-muted-foreground mb-2">Dolap Adı</label>
+                            <Input
+                                type="text"
+                                required
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                placeholder="Örn: Ana Laboratuvar Buzdolabı"
+                            />
                         </div>
 
-                        {/* Form */}
-                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                        <div>
+                            <label className="block text-sm text-muted-foreground mb-2">Tip</label>
+                            <Select
+                                value={String(formData.type)}
+                                onValueChange={(val) => setFormData({ ...formData, type: parseInt(val) })}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Tip seçin" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="0">Buzdolabı (+4°C)</SelectItem>
+                                    <SelectItem value="1">Derin Dondurucu (-20°C)</SelectItem>
+                                    <SelectItem value="2">Ultra Derin Dondurucu (-80°C)</SelectItem>
+                                    <SelectItem value="3">Oda / Raf (Normal Sıcaklık)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block mb-2 text-muted text-sm">Dolap Adı</label>
-                                <input
+                                <label className="block text-sm text-muted-foreground mb-2">Sıcaklık</label>
+                                <Input
                                     type="text"
-                                    required
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors"
-                                    placeholder="Örn: Ana Laboratuvar Buzdolabı"
+                                    value={formData.temperatureCondition}
+                                    onChange={(e) => setFormData({ ...formData, temperatureCondition: e.target.value })}
+                                    placeholder="+4°C"
                                 />
                             </div>
-
                             <div>
-                                <label className="block mb-2 text-muted text-sm">Tip</label>
-                                <select
-                                    value={formData.type}
-                                    onChange={(e) => setFormData({ ...formData, type: parseInt(e.target.value) })}
-                                    className="w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors"
-                                >
-                                    <option value={0}>Buzdolabı (+4°C)</option>
-                                    <option value={1}>Derin Dondurucu (-20°C / -80°C)</option>
-                                    <option value={2}>Oda / Raf (Normal Sıcaklık)</option>
-                                </select>
+                                <label className="block text-sm text-muted-foreground mb-2">Kapasite Bilgisi</label>
+                                <Input
+                                    type="text"
+                                    value={formData.capacityInfo}
+                                    onChange={(e) => setFormData({ ...formData, capacityInfo: e.target.value })}
+                                    placeholder="5 Raf / 200 Kutu"
+                                />
                             </div>
+                        </div>
 
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block mb-2 text-muted text-sm">Sıcaklık</label>
-                                    <input
-                                        type="text"
-                                        value={formData.temperatureCondition}
-                                        onChange={(e) => setFormData({ ...formData, temperatureCondition: e.target.value })}
-                                        className="w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors"
-                                        placeholder="+4°C"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="block mb-2 text-muted text-sm">Kapasite Bilgisi</label>
-                                    <input
-                                        type="text"
-                                        value={formData.capacityInfo}
-                                        onChange={(e) => setFormData({ ...formData, capacityInfo: e.target.value })}
-                                        className="w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors"
-                                        placeholder="5 Raf / 200 Kutu"
-                                    />
-                                </div>
-                            </div>
-
-                            <button
-                                type="submit"
-                                className="mt-2.5 p-3.5 bg-primary text-white rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-primary-dark transition-colors"
-                            >
-                                <Save size={20} />
-                                {editingId ? 'Güncelle' : 'Kaydet'}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
+                        <Button type="submit" className="mt-2 gap-2 w-full">
+                            <Save size={18} />
+                            {editingId ? 'Güncelle' : 'Kaydet'}
+                        </Button>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

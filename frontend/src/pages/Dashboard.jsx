@@ -1,23 +1,39 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Database, PackageOpen, AlertTriangle } from 'lucide-react';
+
 export default function Dashboard() {
+    const stats = [
+        { title: 'Toplam Dolap', value: '8', icon: Database, color: 'text-sky-400', bgColor: 'bg-sky-500/10' },
+        { title: 'Toplam Ürün', value: '245', icon: PackageOpen, color: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
+        { title: 'Kritik Stok', value: '3', icon: AlertTriangle, color: 'text-red-400', bgColor: 'bg-red-500/10', danger: true },
+    ];
+
     return (
         <div>
-            <h1 className="text-3xl font-bold mb-6 text-main">Genel Bakış</h1>
+            <div className="mb-8">
+                <h1 className="text-3xl font-bold text-foreground">Genel Bakış</h1>
+                <p className="text-muted-foreground mt-1">Laboratuvar envanterinizin özeti</p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {/* Toplam Dolap */}
-                <div className="p-5 bg-card rounded-xl border border-border-custom transition-colors duration-300">
-                    <h3 className="m-0 text-muted text-sm font-medium">Toplam Dolap</h3>
-                    <p className="text-4xl font-bold my-2.5 text-primary">8</p>
-                </div>
-                {/* Toplam Ürün */}
-                <div className="p-5 bg-card rounded-xl border border-border-custom transition-colors duration-300">
-                    <h3 className="m-0 text-muted text-sm font-medium">Toplam Ürün</h3>
-                    <p className="text-4xl font-bold my-2.5 text-primary">245</p>
-                </div>
-                {/* Kritik Stok */}
-                <div className="p-5 bg-card rounded-xl border border-border-custom transition-colors duration-300">
-                    <h3 className="m-0 text-muted text-sm font-medium">Kritik Stok</h3>
-                    <p className="text-4xl font-bold my-2.5 text-red-500">3</p>
-                </div>
+                {stats.map((stat) => (
+                    <Card key={stat.title} className="bg-card border-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+                        <CardHeader className="flex flex-row items-center justify-between pb-2">
+                            <CardTitle className="text-sm font-medium text-muted-foreground">
+                                {stat.title}
+                            </CardTitle>
+                            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                                <stat.icon size={20} className={stat.color} />
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <p className={`text-4xl font-bold ${stat.danger ? 'text-red-400' : 'text-primary'}`}>
+                                {stat.value}
+                            </p>
+                        </CardContent>
+                    </Card>
+                ))}
             </div>
         </div>
     );

@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit, Trash, Box, Thermometer, X } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Trash, Box, Thermometer, Package, Layers, ChevronDown, ChevronRight, FolderPlus } from 'lucide-react';
 import cabinetService from '../services/cabinetService';
 import productService from '../services/productService';
 import categoryService from '../services/categoryService';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import {
+    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from '@/components/ui/table';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Separator } from '@/components/ui/separator';
 
 export default function CabinetDetail() {
     const { id } = useParams();
@@ -14,15 +24,18 @@ export default function CabinetDetail() {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    const [openCategoryId, setOpenCategoryId] = useState(null);
+
     // Modal States
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [editingProductId, setEditingProductId] = useState(null);
+    const [activeCategoryId, setActiveCategoryId] = useState(null);
+    const [newCategoryName, setNewCategoryName] = useState('');
 
-    // Form Data
     const [productForm, setProductForm] = useState({
         name: '',
-        categoryId: '',
         catalogNumber: '',
         quantity: ''
     });
@@ -43,7 +56,6 @@ export default function CabinetDetail() {
             const allProducts = await productService.getAll();
             const cabinetProducts = allProducts.filter(p => p.storageLocationId === parseInt(id));
             setProducts(cabinetProducts);
-
         } catch (err) {
             console.error(err);
             alert('Veriler yüklenirken hata oluştu');
@@ -52,30 +64,34 @@ export default function CabinetDetail() {
         }
     };
 
-    const resetForm = () => {
-        setProductForm({ name: '', categoryId: '', catalogNumber: '', quantity: '' });
-        setEditingProductId(null);
+    const getProductsByCategory = (categoryId) => products.filter(p => p.categoryId === categoryId);
+    const uncategorizedProducts = products.filter(p => !p.categoryId);
+
+    const toggleCategory = (categoryId) => {
+        setOpenCategoryId(prev => prev === categoryId ? null : categoryId);
     };
 
-    const openAddModal = () => {
+    const resetForm = () => {
+        setProductForm({ name: '', catalogNumber: '', quantity: '' });
+        setEditingProductId(null);
+        setActiveCategoryId(null);
+    };
+
+    const openAddModal = (categoryId) => {
         resetForm();
+        setActiveCategoryId(categoryId);
         setIsProductModalOpen(true);
     };
 
     const openEditModal = (product) => {
         setEditingProductId(product.id);
+        setActiveCategoryId(product.categoryId);
         setProductForm({
             name: product.name || '',
-            categoryId: product.categoryId ? String(product.categoryId) : '',
             catalogNumber: product.catalogNumber || '',
             quantity: product.quantity !== undefined ? String(product.quantity) : ''
         });
         setIsProductModalOpen(true);
-    };
-
-    const closeModal = () => {
-        setIsProductModalOpen(false);
-        resetForm();
     };
 
     const handleProductSubmit = async (e) => {
@@ -83,7 +99,7 @@ export default function CabinetDetail() {
         try {
             const payload = {
                 name: productForm.name || null,
-                categoryId: productForm.categoryId ? parseInt(productForm.categoryId) : null,
+                categoryId: activeCategoryId || null,
                 catalogNumber: productForm.catalogNumber || null,
                 quantity: productForm.quantity ? parseFloat(productForm.quantity) : 0,
                 storageLocationId: parseInt(id)
@@ -95,7 +111,8 @@ export default function CabinetDetail() {
                 await productService.create(payload);
             }
 
-            closeModal();
+            setIsProductModalOpen(false);
+            resetForm();
             fetchData();
         } catch (err) {
             console.error('Ürün kaydetme hatası:', err.response?.data || err);
@@ -104,10 +121,7 @@ export default function CabinetDetail() {
     };
 
     const handleDelete = async (productId, productName) => {
-        if (!window.confirm(`"${productName || 'Bu ürün'}" silinecek. Emin misiniz?`)) {
-            return;
-        }
-
+        if (!window.confirm(`"${productName || 'Bu ürün'}" silinecek. Emin misiniz?`)) return;
         try {
             await productService.delete(productId);
             fetchData();
@@ -129,214 +143,340 @@ export default function CabinetDetail() {
         }
     };
 
-    if (loading) return <div className="p-8 text-muted">Yükleniyor...</div>;
-    if (!cabinet) return <div className="p-8 text-muted">Dolap bulunamadı.</div>;
+    const handleCreateCategory = async (e) => {
+        e.preventDefault();
+        if (!newCategoryName.trim()) return;
+        try {
+            await categoryService.create({ name: newCategoryName.trim() });
+            setNewCategoryName('');
+            setIsCategoryModalOpen(false);
+            fetchData();
+        } catch (err) {
+            console.error('Kategori ekleme hatası:', err);
+            alert('Kategori eklenirken hata oluştu.');
+        }
+    };
 
-    const inputClasses = "w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors";
-    const labelClasses = "block text-sm text-muted mb-1.5";
+    if (loading) return <div className="p-8 text-muted-foreground">Yükleniyor...</div>;
+    if (!cabinet) return <div className="p-8 text-muted-foreground">Dolap bulunamadı.</div>;
+
+    const categoryColors = [
+        { bg: 'bg-sky-500/10', border: 'border-sky-500/30', text: 'text-sky-400', icon: 'text-sky-400' },
+        { bg: 'bg-violet-500/10', border: 'border-violet-500/30', text: 'text-violet-400', icon: 'text-violet-400' },
+        { bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', text: 'text-emerald-400', icon: 'text-emerald-400' },
+        { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400', icon: 'text-amber-400' },
+        { bg: 'bg-rose-500/10', border: 'border-rose-500/30', text: 'text-rose-400', icon: 'text-rose-400' },
+        { bg: 'bg-teal-500/10', border: 'border-teal-500/30', text: 'text-teal-400', icon: 'text-teal-400' },
+    ];
+
+    const getColor = (i) => categoryColors[i % categoryColors.length];
+
+    const activeCategoryName = activeCategoryId
+        ? categories.find(c => c.id === activeCategoryId)?.name || 'Kategori'
+        : 'Kategorisiz';
+
+    // Product table per category
+    const ProductTable = ({ items }) => (
+        <div className="rounded-lg border border-border overflow-hidden">
+            <Table>
+                <TableHeader>
+                    <TableRow className="bg-muted/30 hover:bg-muted/30">
+                        <TableHead className="text-muted-foreground font-semibold">Ürün Adı</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold">Katalog No</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-center">Miktar</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-center w-[100px]">İşlemler</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {items.map((product) => (
+                        <TableRow key={product.id} className="hover:bg-muted/10">
+                            <TableCell className="font-medium text-foreground">{product.name || '-'}</TableCell>
+                            <TableCell className="font-mono text-sm text-muted-foreground">{product.catalogNumber || '-'}</TableCell>
+                            <TableCell className="text-center">
+                                <Badge variant="secondary" className="bg-primary/10 text-primary border-0 font-semibold">
+                                    {product.quantity}
+                                </Badge>
+                            </TableCell>
+                            <TableCell>
+                                <div className="flex justify-center gap-1">
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-sky-400 hover:text-sky-300 hover:bg-sky-400/10"
+                                        onClick={() => openEditModal(product)}
+                                        title="Düzenle"
+                                    >
+                                        <Edit size={15} />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                                        onClick={() => handleDelete(product.id, product.name)}
+                                        title="Sil"
+                                    >
+                                        <Trash size={15} />
+                                    </Button>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
 
     return (
         <div>
             {/* Header */}
-            <div className="flex items-center gap-4 mb-6">
-                <button
+            <div className="flex items-center gap-4 mb-8">
+                <Button
+                    variant="outline"
+                    size="icon"
                     onClick={() => navigate('/cabinets')}
-                    className="p-2 rounded-lg border border-border-custom text-main flex items-center justify-center hover:bg-card transition-colors"
+                    className="h-10 w-10"
                 >
                     <ArrowLeft size={20} />
-                </button>
-                <div>
-                    <h1 className="text-3xl font-bold m-0 mb-2 flex items-center text-main">
+                </Button>
+                <div className="flex-1">
+                    <h1 className="text-3xl font-bold text-foreground mb-1">
                         {cabinet.name}
                     </h1>
-                    <div className="flex gap-4 text-muted text-sm">
-                        <span className="flex items-center gap-1"><Thermometer size={16} /> {cabinet.temperatureCondition || 'Belirtilmedi'}</span>
-                        <span className="flex items-center gap-1"><Box size={16} /> {cabinet.capacityInfo || 'Kapasite Yok'}</span>
+                    <div className="flex gap-4 text-muted-foreground text-sm">
+                        <span className="flex items-center gap-1.5"><Thermometer size={15} /> {cabinet.temperatureCondition || 'Belirtilmedi'}</span>
+                        <span className="flex items-center gap-1.5"><Box size={15} /> {cabinet.capacityInfo || 'Kapasite Yok'}</span>
+                        <span className="flex items-center gap-1.5"><Package size={15} /> {products.length} ürün</span>
                     </div>
                 </div>
             </div>
 
-            {/* Products Table */}
-            <div className="bg-card rounded-xl border border-border-custom p-8 shadow-lg transition-colors duration-300">
-                <div className="flex justify-between items-center mb-8 pb-4 border-b border-border-custom">
-                    <div>
-                        <h2 className="text-2xl font-bold m-0 mb-2 text-main">Ürünler</h2>
-                        <p className="text-muted text-sm m-0">Bu dolaptaki tüm ürünleri buradan yönetebilirsiniz.</p>
-                    </div>
-                    <button
-                        onClick={openAddModal}
-                        className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-primary-dark transition-colors"
-                    >
-                        <Plus size={20} /> Yeni Ürün Ekle
-                    </button>
-                </div>
+            {/* Section Title */}
+            <div className="flex items-center gap-3 mb-5">
+                <Layers size={20} className="text-primary" />
+                <h2 className="text-lg font-semibold text-foreground m-0">Kategori Bölmeleri</h2>
+                <span className="text-sm text-muted-foreground flex-1">— Bir bölmeye tıklayarak içindeki ürünleri görüntüleyin</span>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsCategoryModalOpen(true)}
+                    className="gap-1.5"
+                >
+                    <FolderPlus size={15} /> Kategori Ekle
+                </Button>
+            </div>
 
-                {products.length === 0 ? (
-                    <div className="text-center py-10 text-muted">
-                        <Box size={48} className="mx-auto mb-3 opacity-50" />
-                        <p className="m-0">Bu dolapta henüz ürün yok.</p>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="bg-white/[0.03]">
-                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted">Ürün Adı</th>
-                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted">Kategori</th>
-                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted">Katalog No</th>
-                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted text-center">Miktar</th>
-                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted text-center w-[120px]">İşlemler</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {products.map((product) => (
-                                    <tr key={product.id} className="border-b border-border-custom hover:bg-white/[0.02] transition-colors">
-                                        <td className="px-4 py-3 text-main">{product.name || '-'}</td>
-                                        <td className="px-4 py-3 text-muted">{product.categoryName || '-'}</td>
-                                        <td className="px-4 py-3 font-mono text-sm text-muted">{product.catalogNumber || '-'}</td>
-                                        <td className="px-4 py-3 text-center text-main">{product.quantity}</td>
-                                        <td className="px-4 py-3">
-                                            <div className="flex justify-center gap-2">
-                                                <button
-                                                    onClick={() => openEditModal(product)}
-                                                    className="text-sky-400 p-1.5 rounded-md hover:bg-sky-400/10 transition-colors"
-                                                    title="Düzenle"
-                                                >
-                                                    <Edit size={18} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(product.id, product.name)}
-                                                    className="text-red-400 p-1.5 rounded-md hover:bg-red-400/10 transition-colors"
-                                                    title="Sil"
-                                                >
-                                                    <Trash size={18} />
-                                                </button>
+            {/* Category Compartments */}
+            <div className="flex flex-col gap-2.5">
+                {categories.map((category, index) => {
+                    const color = getColor(index);
+                    const categoryProducts = getProductsByCategory(category.id);
+                    const isOpen = openCategoryId === category.id;
+
+                    return (
+                        <Collapsible
+                            key={category.id}
+                            open={isOpen}
+                            onOpenChange={() => toggleCategory(category.id)}
+                        >
+                            <Card className={`transition-all duration-300 overflow-hidden ${isOpen ? `${color.border} ${color.bg}` : 'hover:border-primary/20'}`}>
+                                <CollapsibleTrigger className="w-full">
+                                    <div className="flex items-center justify-between p-4 px-5 cursor-pointer">
+                                        <div className="flex items-center gap-3">
+                                            {isOpen
+                                                ? <ChevronDown size={18} className={color.icon} />
+                                                : <ChevronRight size={18} className="text-muted-foreground" />
+                                            }
+                                            <Package size={18} className={isOpen ? color.icon : 'text-muted-foreground'} />
+                                            <span className={`font-semibold text-base ${isOpen ? color.text : 'text-foreground'}`}>
+                                                {category.name}
+                                            </span>
+                                        </div>
+                                        <Badge variant="outline" className={isOpen ? `${color.text} ${color.border}` : 'text-muted-foreground'}>
+                                            {categoryProducts.length} ürün
+                                        </Badge>
+                                    </div>
+                                </CollapsibleTrigger>
+
+                                <CollapsibleContent>
+                                    <div className="px-5 pb-5">
+                                        <Separator className="mb-4" />
+                                        <div className="flex justify-end mb-4">
+                                            <Button
+                                                size="sm"
+                                                onClick={() => openAddModal(category.id)}
+                                                className="gap-1.5 shadow-sm"
+                                            >
+                                                <Plus size={15} /> Yeni Ürün Ekle
+                                            </Button>
+                                        </div>
+
+                                        {categoryProducts.length === 0 ? (
+                                            <div className="text-center py-8 text-muted-foreground">
+                                                <Box size={36} className="mx-auto mb-2 opacity-40" />
+                                                <p className="text-sm m-0">Bu bölmede henüz ürün yok.</p>
                                             </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
+                                        ) : (
+                                            <ProductTable items={categoryProducts} />
+                                        )}
+                                    </div>
+                                </CollapsibleContent>
+                            </Card>
+                        </Collapsible>
+                    );
+                })}
+
+                {/* Uncategorized */}
+                {uncategorizedProducts.length > 0 && (
+                    <Collapsible
+                        open={openCategoryId === 'uncategorized'}
+                        onOpenChange={() => toggleCategory('uncategorized')}
+                    >
+                        <Card className={`transition-all duration-300 ${openCategoryId === 'uncategorized' ? 'border-slate-500/30 bg-slate-500/5' : 'hover:border-primary/20'}`}>
+                            <CollapsibleTrigger className="w-full">
+                                <div className="flex items-center justify-between p-4 px-5 cursor-pointer">
+                                    <div className="flex items-center gap-3">
+                                        {openCategoryId === 'uncategorized'
+                                            ? <ChevronDown size={18} className="text-slate-400" />
+                                            : <ChevronRight size={18} className="text-muted-foreground" />
+                                        }
+                                        <Package size={18} className="text-muted-foreground" />
+                                        <span className="font-semibold text-base text-foreground">Kategorisiz</span>
+                                    </div>
+                                    <Badge variant="outline" className="text-muted-foreground">
+                                        {uncategorizedProducts.length} ürün
+                                    </Badge>
+                                </div>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <div className="px-5 pb-5">
+                                    <Separator className="mb-4" />
+                                    <ProductTable items={uncategorizedProducts} />
+                                </div>
+                            </CollapsibleContent>
+                        </Card>
+                    </Collapsible>
                 )}
             </div>
 
-            {/* Delete Cabinet Section */}
+            {/* Delete Cabinet */}
             <div className="mt-12 mb-8 flex justify-end">
-                <button
+                <Button
+                    variant="outline"
+                    className="text-destructive border-destructive/50 hover:bg-destructive/10 hover:text-destructive gap-2"
                     onClick={() => setIsDeleteModalOpen(true)}
-                    className="flex items-center gap-2 bg-transparent text-red-500 border border-red-500 px-5 py-2.5 rounded-lg font-medium hover:bg-red-500/10 transition-colors"
                 >
-                    <Trash size={18} />
+                    <Trash size={16} />
                     Dolabı Sil
-                </button>
+                </Button>
             </div>
 
-            {/* Add/Edit Product Modal */}
-            {isProductModalOpen && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-card rounded-xl w-full max-w-lg border border-border-custom shadow-2xl overflow-hidden">
-                        {/* Modal Header */}
-                        <div className="px-6 py-5 border-b border-border-custom flex justify-between items-center">
-                            <h3 className="text-xl font-bold m-0 text-main">
-                                {editingProductId ? 'Ürünü Düzenle' : 'Yeni Ürün Ekle'}
-                            </h3>
-                            <button onClick={closeModal} className="text-muted hover:text-main transition-colors flex items-center justify-center p-1">
-                                <X size={20} />
-                            </button>
+            {/* Add/Edit Product Dialog */}
+            <Dialog open={isProductModalOpen} onOpenChange={setIsProductModalOpen}>
+                <DialogContent className="sm:max-w-md bg-card border-border">
+                    <DialogHeader>
+                        <DialogTitle>
+                            {editingProductId ? 'Ürünü Düzenle' : 'Yeni Ürün Ekle'}
+                        </DialogTitle>
+                        <DialogDescription>
+                            Bölme: <span className="text-primary font-medium">{activeCategoryName}</span>
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleProductSubmit} className="flex flex-col gap-4 mt-2">
+                        <div>
+                            <label className="block text-sm text-muted-foreground mb-2">Ürün Adı</label>
+                            <Input
+                                value={productForm.name}
+                                onChange={e => setProductForm({ ...productForm, name: e.target.value })}
+                                placeholder="Ürün adı"
+                            />
                         </div>
 
-                        {/* Form */}
-                        <form onSubmit={handleProductSubmit} className="p-6 flex flex-col gap-5">
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className={labelClasses}>Ürün Adı</label>
-                                    <input
-                                        type="text"
-                                        value={productForm.name}
-                                        onChange={e => setProductForm({ ...productForm, name: e.target.value })}
-                                        className={inputClasses}
-                                        placeholder="Ürün adı"
-                                    />
-                                </div>
-                                <div>
-                                    <label className={labelClasses}>Kategori</label>
-                                    <select
-                                        value={productForm.categoryId}
-                                        onChange={e => setProductForm({ ...productForm, categoryId: e.target.value })}
-                                        className={inputClasses}
-                                    >
-                                        <option value="">Seçiniz...</option>
-                                        {categories.map(c => (
-                                            <option key={c.id} value={c.id}>{c.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm text-muted-foreground mb-2">Katalog No</label>
+                                <Input
+                                    value={productForm.catalogNumber}
+                                    onChange={e => setProductForm({ ...productForm, catalogNumber: e.target.value })}
+                                    placeholder="Katalog numarası"
+                                />
                             </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className={labelClasses}>Katalog No</label>
-                                    <input
-                                        type="text"
-                                        value={productForm.catalogNumber}
-                                        onChange={e => setProductForm({ ...productForm, catalogNumber: e.target.value })}
-                                        className={inputClasses}
-                                        placeholder="Katalog numarası"
-                                    />
-                                </div>
-                                <div>
-                                    <label className={labelClasses}>Miktar</label>
-                                    <input
-                                        type="text"
-                                        value={productForm.quantity}
-                                        onChange={e => setProductForm({ ...productForm, quantity: e.target.value })}
-                                        className={inputClasses}
-                                        placeholder="Miktar"
-                                    />
-                                </div>
+                            <div>
+                                <label className="block text-sm text-muted-foreground mb-2">Miktar</label>
+                                <Input
+                                    value={productForm.quantity}
+                                    onChange={e => setProductForm({ ...productForm, quantity: e.target.value })}
+                                    placeholder="Miktar"
+                                />
                             </div>
-
-                            <div className="pt-2">
-                                <button type="submit" className="w-full bg-primary text-white font-bold p-3.5 rounded-lg hover:bg-primary-dark transition-colors">
-                                    {editingProductId ? 'Güncelle' : 'Kaydet'}
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* Delete Cabinet Confirmation Modal */}
-            {isDeleteModalOpen && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-card rounded-xl w-full max-w-sm border border-border-custom py-8 px-6 text-center">
-                        <div className="mx-auto mb-4 flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10">
-                            <Trash className="h-8 w-8 text-red-500" />
                         </div>
-                        <h3 className="text-xl font-bold mb-3 text-main">
-                            Emin misin?
-                        </h3>
-                        <p className="text-muted mb-8 leading-relaxed">
-                            Bu dolabı ve içerisindeki her şeyi silmek üzeresin. Bu işlem geri alınamaz.
-                        </p>
-                        <div className="flex gap-3 justify-center">
-                            <button
+
+                        <Button type="submit" className="w-full mt-1">
+                            {editingProductId ? 'Güncelle' : 'Kaydet'}
+                        </Button>
+                    </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+                <DialogContent className="sm:max-w-sm bg-card border-border text-center">
+                    <div className="flex flex-col items-center pt-4">
+                        <div className="mb-4 flex items-center justify-center h-16 w-16 rounded-full bg-destructive/10">
+                            <Trash className="h-8 w-8 text-destructive" />
+                        </div>
+                        <DialogHeader className="text-center">
+                            <DialogTitle className="text-center">Emin misin?</DialogTitle>
+                            <DialogDescription className="text-center leading-relaxed">
+                                Bu dolabı ve içerisindeki her şeyi silmek üzeresin. Bu işlem geri alınamaz.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex gap-3 w-full mt-6">
+                            <Button
+                                variant="outline"
+                                className="flex-1"
                                 onClick={() => setIsDeleteModalOpen(false)}
-                                className="flex-1 py-3 px-6 rounded-lg bg-dark text-main font-medium border border-border-custom hover:bg-card transition-colors"
                             >
                                 Hayır
-                            </button>
-                            <button
+                            </Button>
+                            <Button
+                                variant="destructive"
+                                className="flex-1"
                                 onClick={handleDeleteCabinet}
-                                className="flex-1 py-3 px-6 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
                             >
                                 Evet
-                            </button>
+                            </Button>
                         </div>
                     </div>
-                </div>
-            )}
+                </DialogContent>
+            </Dialog>
+
+            {/* Create Category Dialog */}
+            <Dialog open={isCategoryModalOpen} onOpenChange={setIsCategoryModalOpen}>
+                <DialogContent className="sm:max-w-sm bg-card border-border">
+                    <DialogHeader>
+                        <DialogTitle>Yeni Kategori Ekle</DialogTitle>
+                        <DialogDescription>
+                            Dolap bölmeleri için yeni bir kategori oluşturun.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <form onSubmit={handleCreateCategory} className="flex flex-col gap-4 mt-2">
+                        <div>
+                            <label className="block text-sm text-muted-foreground mb-2">Kategori Adı</label>
+                            <Input
+                                value={newCategoryName}
+                                onChange={e => setNewCategoryName(e.target.value)}
+                                placeholder="Örn: Diğer, Enzimler, Primerler..."
+                                required
+                            />
+                        </div>
+                        <Button type="submit" className="w-full">
+                            <FolderPlus size={16} className="mr-2" /> Kategori Oluştur
+                        </Button>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }
