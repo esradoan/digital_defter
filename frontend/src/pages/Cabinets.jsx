@@ -10,7 +10,7 @@ export default function Cabinets() {
 
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingId, setEditingId] = useState(null); // Düzenlenen dolap ID'si
+    const [editingId, setEditingId] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         type: 0,
@@ -41,7 +41,7 @@ export default function Cabinets() {
     };
 
     const handleEditClick = (e, cabinet) => {
-        e.preventDefault(); // Link tıklamasını engelle
+        e.preventDefault();
         e.stopPropagation();
         setEditingId(cabinet.id);
         setFormData({
@@ -63,13 +63,11 @@ export default function Cabinets() {
         e.preventDefault();
         try {
             if (editingId) {
-                // Güncelleme Modu
                 await cabinetService.update(editingId, formData);
             } else {
-                // Ekleme Modu
                 await cabinetService.create(formData);
             }
-            await fetchCabinets(); // Listeyi güncelle
+            await fetchCabinets();
             handleCloseModal();
         } catch (err) {
             console.error(err);
@@ -77,53 +75,49 @@ export default function Cabinets() {
         }
     };
 
-    if (loading) return <div className="p-4">Yükleniyor...</div>;
+    if (loading) return <div className="p-4 text-muted">Yükleniyor...</div>;
     if (error) return <div className="p-4 text-red-500">{error}</div>;
 
     return (
         <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-                <h1 style={{ fontSize: '2rem', margin: 0 }}>Dolaplar</h1>
+            {/* Header */}
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold m-0 text-main">Dolaplar</h1>
                 <button
                     onClick={handleCreateClick}
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: 'var(--primary)',
-                        color: 'white',
-                        borderRadius: '6px',
-                        fontWeight: 'bold',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                    }}
+                    className="px-5 py-2.5 bg-primary text-white rounded-lg font-bold flex items-center gap-2 hover:bg-primary-dark transition-colors"
                 >
                     <Plus size={20} /> Yeni Dolap
                 </button>
             </div>
 
+            {/* Empty State */}
             {cabinets.length === 0 ? (
-                <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)', backgroundColor: 'var(--bg-card)', borderRadius: '10px' }}>
-                    <Archive size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+                <div className="p-10 text-center text-muted bg-card rounded-xl">
+                    <Archive size={48} className="mb-4 opacity-50 mx-auto" />
                     <p>Henüz hiç dolap eklenmemiş.</p>
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                /* Cabinet Grid */
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                     {cabinets.map((cabinet) => (
-                        <div key={cabinet.id} style={{ backgroundColor: 'var(--bg-card)', borderRadius: '12px', padding: '20px', border: '1px solid var(--border-color)', position: 'relative' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
-                                <Link to={`/cabinets/${cabinet.id}`} style={{ textDecoration: 'none', color: 'inherit', flex: 1 }}>
-                                    <h3 style={{ margin: 0, fontSize: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div
+                            key={cabinet.id}
+                            className="bg-card rounded-xl p-5 border border-border-custom relative transition-colors duration-300 hover:border-primary/30"
+                        >
+                            <div className="flex justify-between items-start mb-4">
+                                <Link to={`/cabinets/${cabinet.id}`} className="flex-1">
+                                    <h3 className="m-0 text-lg font-semibold cursor-pointer flex items-center gap-2 text-main hover:text-primary transition-colors">
                                         {cabinet.name}
                                     </h3>
                                 </Link>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <span style={{ fontSize: '0.875rem', padding: '4px 8px', backgroundColor: 'var(--border-color)', color: 'var(--text-main)', borderRadius: '6px', fontWeight: '500' }}>
+                                <div className="flex items-center gap-2.5">
+                                    <span className="text-sm px-2 py-1 bg-border-custom text-main rounded-md font-medium">
                                         {cabinet.type === 0 ? 'Buzdolabı' : cabinet.type === 1 ? 'Derin Dondurucu' : 'Oda'}
                                     </span>
                                     <button
                                         onClick={(e) => handleEditClick(e, cabinet)}
-                                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '4px' }}
+                                        className="text-muted p-1 hover:text-primary transition-colors"
                                         title="Düzenle"
                                     >
                                         <EditIcon size={18} />
@@ -131,12 +125,12 @@ export default function Cabinets() {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', gap: '15px', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <div className="flex gap-4 text-muted text-sm">
+                                <div className="flex items-center gap-1.5">
                                     <Thermometer size={16} />
                                     <span>{cabinet.temperatureCondition || 'Belirtilmedi'}</span>
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                <div className="flex items-center gap-1.5">
                                     <Box size={16} />
                                     <span>{cabinet.capacityInfo || 'Kapasite Yok'}</span>
                                 </div>
@@ -148,42 +142,38 @@ export default function Cabinets() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000
-                }}>
-                    <div style={{
-                        backgroundColor: 'var(--bg-card)', padding: '24px', borderRadius: '12px', width: '100%', maxWidth: '500px',
-                        border: '1px solid var(--border-color)', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <h2 style={{ margin: 0, fontSize: '1.5rem' }}>
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]">
+                    <div className="bg-card p-6 rounded-xl w-full max-w-lg border border-border-custom shadow-2xl">
+                        {/* Modal Header */}
+                        <div className="flex justify-between items-center mb-5">
+                            <h2 className="m-0 text-2xl font-bold text-main">
                                 {editingId ? 'Dolabı Düzenle' : 'Yeni Dolap Ekle'}
                             </h2>
-                            <button onClick={handleCloseModal} style={{ padding: '8px', borderRadius: '8px', cursor: 'pointer', border: 'none', background: 'transparent' }}>
-                                <X size={24} color="var(--text-muted)" />
+                            <button onClick={handleCloseModal} className="p-2 rounded-lg hover:bg-border-custom transition-colors">
+                                <X size={24} className="text-muted" />
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {/* Form */}
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                             <div>
-                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)' }}>Dolap Adı</label>
+                                <label className="block mb-2 text-muted text-sm">Dolap Adı</label>
                                 <input
                                     type="text"
                                     required
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#0f172a', border: '1px solid var(--border-color)', color: 'white' }}
+                                    className="w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors"
                                     placeholder="Örn: Ana Laboratuvar Buzdolabı"
                                 />
                             </div>
 
                             <div>
-                                <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)' }}>Tip</label>
+                                <label className="block mb-2 text-muted text-sm">Tip</label>
                                 <select
                                     value={formData.type}
                                     onChange={(e) => setFormData({ ...formData, type: parseInt(e.target.value) })}
-                                    style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#0f172a', border: '1px solid var(--border-color)', color: 'white' }}
+                                    className="w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors"
                                 >
                                     <option value={0}>Buzdolabı (+4°C)</option>
                                     <option value={1}>Derin Dondurucu (-20°C / -80°C)</option>
@@ -191,24 +181,24 @@ export default function Cabinets() {
                                 </select>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                <div style={{ marginBottom: 0 }}>
-                                    <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)' }}>Sıcaklık</label>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block mb-2 text-muted text-sm">Sıcaklık</label>
                                     <input
                                         type="text"
                                         value={formData.temperatureCondition}
                                         onChange={(e) => setFormData({ ...formData, temperatureCondition: e.target.value })}
-                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#0f172a', border: '1px solid var(--border-color)', color: 'white' }}
+                                        className="w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors"
                                         placeholder="+4°C"
                                     />
                                 </div>
-                                <div style={{ marginBottom: 0 }}>
-                                    <label style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)' }}>Kapasite Bilgisi</label>
+                                <div>
+                                    <label className="block mb-2 text-muted text-sm">Kapasite Bilgisi</label>
                                     <input
                                         type="text"
                                         value={formData.capacityInfo}
                                         onChange={(e) => setFormData({ ...formData, capacityInfo: e.target.value })}
-                                        style={{ width: '100%', padding: '12px', borderRadius: '8px', backgroundColor: '#0f172a', border: '1px solid var(--border-color)', color: 'white' }}
+                                        className="w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors"
                                         placeholder="5 Raf / 200 Kutu"
                                     />
                                 </div>
@@ -216,11 +206,7 @@ export default function Cabinets() {
 
                             <button
                                 type="submit"
-                                style={{
-                                    marginTop: '10px', padding: '14px', backgroundColor: 'var(--primary)', color: 'white',
-                                    borderRadius: '8px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                    cursor: 'pointer', border: 'none'
-                                }}
+                                className="mt-2.5 p-3.5 bg-primary text-white rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-primary-dark transition-colors"
                             >
                                 <Save size={20} />
                                 {editingId ? 'Güncelle' : 'Kaydet'}

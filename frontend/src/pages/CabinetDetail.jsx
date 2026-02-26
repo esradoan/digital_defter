@@ -17,7 +17,7 @@ export default function CabinetDetail() {
     // Modal States
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-    const [editingProductId, setEditingProductId] = useState(null); // null = yeni ürün, sayı = düzenleme
+    const [editingProductId, setEditingProductId] = useState(null);
 
     // Form Data
     const [productForm, setProductForm] = useState({
@@ -90,10 +90,8 @@ export default function CabinetDetail() {
             };
 
             if (editingProductId) {
-                // Güncelleme
                 await productService.update(editingProductId, { id: editingProductId, ...payload });
             } else {
-                // Yeni ekleme
                 await productService.create(payload);
             }
 
@@ -131,99 +129,84 @@ export default function CabinetDetail() {
         }
     };
 
-    if (loading) return <div style={{ padding: '2rem' }}>Yükleniyor...</div>;
-    if (!cabinet) return <div style={{ padding: '2rem' }}>Dolap bulunamadı.</div>;
+    if (loading) return <div className="p-8 text-muted">Yükleniyor...</div>;
+    if (!cabinet) return <div className="p-8 text-muted">Dolap bulunamadı.</div>;
 
-    const inputStyle = {
-        width: '100%',
-        padding: '12px',
-        borderRadius: '8px',
-        backgroundColor: 'var(--bg-dark)',
-        border: '1px solid var(--border-color)',
-        color: 'var(--text-main)',
-        outline: 'none',
-        boxSizing: 'border-box'
-    };
-
-    const labelStyle = {
-        display: 'block',
-        fontSize: '0.875rem',
-        color: 'var(--text-muted)',
-        marginBottom: '6px'
-    };
+    const inputClasses = "w-full p-3 rounded-lg bg-dark border border-border-custom text-main outline-none focus:border-primary transition-colors";
+    const labelClasses = "block text-sm text-muted mb-1.5";
 
     return (
         <div>
             {/* Header */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+            <div className="flex items-center gap-4 mb-6">
                 <button
                     onClick={() => navigate('/cabinets')}
-                    style={{ padding: '8px', borderRadius: '8px', cursor: 'pointer', background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-main)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    className="p-2 rounded-lg border border-border-custom text-main flex items-center justify-center hover:bg-card transition-colors"
                 >
                     <ArrowLeft size={20} />
                 </button>
                 <div>
-                    <h1 style={{ fontSize: '1.875rem', fontWeight: 'bold', margin: '0 0 8px 0', display: 'flex', alignItems: 'center' }}>
+                    <h1 className="text-3xl font-bold m-0 mb-2 flex items-center text-main">
                         {cabinet.name}
                     </h1>
-                    <div style={{ display: 'flex', gap: '16px', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Thermometer size={16} /> {cabinet.temperatureCondition || 'Belirtilmedi'}</span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Box size={16} /> {cabinet.capacityInfo || 'Kapasite Yok'}</span>
+                    <div className="flex gap-4 text-muted text-sm">
+                        <span className="flex items-center gap-1"><Thermometer size={16} /> {cabinet.temperatureCondition || 'Belirtilmedi'}</span>
+                        <span className="flex items-center gap-1"><Box size={16} /> {cabinet.capacityInfo || 'Kapasite Yok'}</span>
                     </div>
                 </div>
             </div>
 
             {/* Products Table */}
-            <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '12px', border: '1px solid var(--border-color)', padding: '32px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
+            <div className="bg-card rounded-xl border border-border-custom p-8 shadow-lg transition-colors duration-300">
+                <div className="flex justify-between items-center mb-8 pb-4 border-b border-border-custom">
                     <div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0 0 8px 0', color: 'var(--text-main)' }}>Ürünler</h2>
-                        <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', margin: 0 }}>Bu dolaptaki tüm ürünleri buradan yönetebilirsiniz.</p>
+                        <h2 className="text-2xl font-bold m-0 mb-2 text-main">Ürünler</h2>
+                        <p className="text-muted text-sm m-0">Bu dolaptaki tüm ürünleri buradan yönetebilirsiniz.</p>
                     </div>
                     <button
                         onClick={openAddModal}
-                        style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--primary)', color: 'white', padding: '10px 20px', borderRadius: '8px', fontWeight: '500', cursor: 'pointer', border: 'none' }}
+                        className="flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-lg font-medium hover:bg-primary-dark transition-colors"
                     >
                         <Plus size={20} /> Yeni Ürün Ekle
                     </button>
                 </div>
 
                 {products.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-muted)' }}>
-                        <Box size={48} style={{ margin: '0 auto 12px auto', opacity: 0.5 }} />
-                        <p style={{ margin: 0 }}>Bu dolapta henüz ürün yok.</p>
+                    <div className="text-center py-10 text-muted">
+                        <Box size={48} className="mx-auto mb-3 opacity-50" />
+                        <p className="m-0">Bu dolapta henüz ürün yok.</p>
                     </div>
                 ) : (
-                    <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', textAlign: 'left', borderCollapse: 'collapse' }}>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.03)' }}>
-                                    <th style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: '600', color: 'var(--text-muted)' }}>Ürün Adı</th>
-                                    <th style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: '600', color: 'var(--text-muted)' }}>Kategori</th>
-                                    <th style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: '600', color: 'var(--text-muted)' }}>Katalog No</th>
-                                    <th style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: '600', color: 'var(--text-muted)', textAlign: 'center' }}>Miktar</th>
-                                    <th style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-color)', fontWeight: '600', color: 'var(--text-muted)', textAlign: 'center', width: '120px' }}>İşlemler</th>
+                                <tr className="bg-white/[0.03]">
+                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted">Ürün Adı</th>
+                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted">Kategori</th>
+                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted">Katalog No</th>
+                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted text-center">Miktar</th>
+                                    <th className="px-4 py-3 border-b border-border-custom font-semibold text-muted text-center w-[120px]">İşlemler</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {products.map((product) => (
-                                    <tr key={product.id} style={{ borderBottom: '1px solid var(--border-color)', transition: 'background-color 0.2s' }}>
-                                        <td style={{ padding: '12px 16px', color: 'var(--text-main)' }}>{product.name || '-'}</td>
-                                        <td style={{ padding: '12px 16px', color: 'var(--text-muted)' }}>{product.categoryName || '-'}</td>
-                                        <td style={{ padding: '12px 16px', fontFamily: 'monospace', fontSize: '0.875rem', color: 'var(--text-muted)' }}>{product.catalogNumber || '-'}</td>
-                                        <td style={{ padding: '12px 16px', textAlign: 'center', color: 'var(--text-main)' }}>{product.quantity}</td>
-                                        <td style={{ padding: '12px 16px' }}>
-                                            <div style={{ display: 'flex', justifyContent: 'center', gap: '8px' }}>
+                                    <tr key={product.id} className="border-b border-border-custom hover:bg-white/[0.02] transition-colors">
+                                        <td className="px-4 py-3 text-main">{product.name || '-'}</td>
+                                        <td className="px-4 py-3 text-muted">{product.categoryName || '-'}</td>
+                                        <td className="px-4 py-3 font-mono text-sm text-muted">{product.catalogNumber || '-'}</td>
+                                        <td className="px-4 py-3 text-center text-main">{product.quantity}</td>
+                                        <td className="px-4 py-3">
+                                            <div className="flex justify-center gap-2">
                                                 <button
                                                     onClick={() => openEditModal(product)}
-                                                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#38bdf8', padding: '6px', borderRadius: '6px' }}
+                                                    className="text-sky-400 p-1.5 rounded-md hover:bg-sky-400/10 transition-colors"
                                                     title="Düzenle"
                                                 >
                                                     <Edit size={18} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(product.id, product.name)}
-                                                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#f87171', padding: '6px', borderRadius: '6px' }}
+                                                    className="text-red-400 p-1.5 rounded-md hover:bg-red-400/10 transition-colors"
                                                     title="Sil"
                                                 >
                                                     <Trash size={18} />
@@ -239,10 +222,10 @@ export default function CabinetDetail() {
             </div>
 
             {/* Delete Cabinet Section */}
-            <div style={{ marginTop: '48px', marginBottom: '32px', display: 'flex', justifyContent: 'flex-end' }}>
+            <div className="mt-12 mb-8 flex justify-end">
                 <button
                     onClick={() => setIsDeleteModalOpen(true)}
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'transparent', color: '#ef4444', border: '1px solid #ef4444', padding: '10px 20px', borderRadius: '8px', fontWeight: '500', cursor: 'pointer' }}
+                    className="flex items-center gap-2 bg-transparent text-red-500 border border-red-500 px-5 py-2.5 rounded-lg font-medium hover:bg-red-500/10 transition-colors"
                 >
                     <Trash size={18} />
                     Dolabı Sil
@@ -251,35 +234,37 @@ export default function CabinetDetail() {
 
             {/* Add/Edit Product Modal */}
             {isProductModalOpen && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
-                    <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '12px', width: '100%', maxWidth: '512px', border: '1px solid var(--border-color)', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', overflow: 'hidden' }}>
-                        <div style={{ padding: '20px 24px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0, color: 'var(--text-main)' }}>
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-card rounded-xl w-full max-w-lg border border-border-custom shadow-2xl overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="px-6 py-5 border-b border-border-custom flex justify-between items-center">
+                            <h3 className="text-xl font-bold m-0 text-main">
                                 {editingProductId ? 'Ürünü Düzenle' : 'Yeni Ürün Ekle'}
                             </h3>
-                            <button onClick={closeModal} style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px' }}>
+                            <button onClick={closeModal} className="text-muted hover:text-main transition-colors flex items-center justify-center p-1">
                                 <X size={20} />
                             </button>
                         </div>
 
-                        <form onSubmit={handleProductSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        {/* Form */}
+                        <form onSubmit={handleProductSubmit} className="p-6 flex flex-col gap-5">
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label style={labelStyle}>Ürün Adı</label>
+                                    <label className={labelClasses}>Ürün Adı</label>
                                     <input
                                         type="text"
                                         value={productForm.name}
                                         onChange={e => setProductForm({ ...productForm, name: e.target.value })}
-                                        style={inputStyle}
+                                        className={inputClasses}
                                         placeholder="Ürün adı"
                                     />
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Kategori</label>
+                                    <label className={labelClasses}>Kategori</label>
                                     <select
                                         value={productForm.categoryId}
                                         onChange={e => setProductForm({ ...productForm, categoryId: e.target.value })}
-                                        style={inputStyle}
+                                        className={inputClasses}
                                     >
                                         <option value="">Seçiniz...</option>
                                         {categories.map(c => (
@@ -289,31 +274,31 @@ export default function CabinetDetail() {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label style={labelStyle}>Katalog No</label>
+                                    <label className={labelClasses}>Katalog No</label>
                                     <input
                                         type="text"
                                         value={productForm.catalogNumber}
                                         onChange={e => setProductForm({ ...productForm, catalogNumber: e.target.value })}
-                                        style={inputStyle}
+                                        className={inputClasses}
                                         placeholder="Katalog numarası"
                                     />
                                 </div>
                                 <div>
-                                    <label style={labelStyle}>Miktar</label>
+                                    <label className={labelClasses}>Miktar</label>
                                     <input
                                         type="text"
                                         value={productForm.quantity}
                                         onChange={e => setProductForm({ ...productForm, quantity: e.target.value })}
-                                        style={inputStyle}
+                                        className={inputClasses}
                                         placeholder="Miktar"
                                     />
                                 </div>
                             </div>
 
-                            <div style={{ paddingTop: '8px' }}>
-                                <button type="submit" style={{ width: '100%', backgroundColor: 'var(--primary)', color: 'white', fontWeight: 'bold', padding: '14px', borderRadius: '8px', cursor: 'pointer', border: 'none' }}>
+                            <div className="pt-2">
+                                <button type="submit" className="w-full bg-primary text-white font-bold p-3.5 rounded-lg hover:bg-primary-dark transition-colors">
                                     {editingProductId ? 'Güncelle' : 'Kaydet'}
                                 </button>
                             </div>
@@ -324,27 +309,27 @@ export default function CabinetDetail() {
 
             {/* Delete Cabinet Confirmation Modal */}
             {isDeleteModalOpen && (
-                <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
-                    <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: '12px', width: '100%', maxWidth: '384px', border: '1px solid var(--border-color)', padding: '32px 24px', textAlign: 'center' }}>
-                        <div style={{ margin: '0 auto 16px auto', display: 'flex', alignItems: 'center', justifyContent: 'center', height: '64px', width: '64px', borderRadius: '50%', backgroundColor: 'rgba(239, 68, 68, 0.1)' }}>
-                            <Trash style={{ height: '32px', width: '32px', color: '#ef4444' }} />
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-card rounded-xl w-full max-w-sm border border-border-custom py-8 px-6 text-center">
+                        <div className="mx-auto mb-4 flex items-center justify-center h-16 w-16 rounded-full bg-red-500/10">
+                            <Trash className="h-8 w-8 text-red-500" />
                         </div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '8px', color: 'var(--text-main)', margin: '0 0 12px 0' }}>
+                        <h3 className="text-xl font-bold mb-3 text-main">
                             Emin misin?
                         </h3>
-                        <p style={{ color: 'var(--text-muted)', marginBottom: '32px', margin: '0 0 32px 0', lineHeight: 1.5 }}>
+                        <p className="text-muted mb-8 leading-relaxed">
                             Bu dolabı ve içerisindeki her şeyi silmek üzeresin. Bu işlem geri alınamaz.
                         </p>
-                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                        <div className="flex gap-3 justify-center">
                             <button
                                 onClick={() => setIsDeleteModalOpen(false)}
-                                style={{ padding: '12px 24px', borderRadius: '8px', backgroundColor: 'var(--bg-dark)', color: 'var(--text-main)', fontWeight: '500', border: '1px solid var(--border-color)', cursor: 'pointer', flex: 1 }}
+                                className="flex-1 py-3 px-6 rounded-lg bg-dark text-main font-medium border border-border-custom hover:bg-card transition-colors"
                             >
                                 Hayır
                             </button>
                             <button
                                 onClick={handleDeleteCabinet}
-                                style={{ padding: '12px 24px', borderRadius: '8px', backgroundColor: '#ef4444', color: 'white', fontWeight: '500', border: 'none', cursor: 'pointer', flex: 1 }}
+                                className="flex-1 py-3 px-6 rounded-lg bg-red-500 text-white font-medium hover:bg-red-600 transition-colors"
                             >
                                 Evet
                             </button>

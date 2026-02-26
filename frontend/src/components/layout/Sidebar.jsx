@@ -14,36 +14,43 @@ export default function Sidebar() {
     ];
 
     return (
-        <div className="sidebar">
-            <div className="sidebar-header">
-                <h2 className="logo-text">
+        <div className="w-sidebar bg-card border-r border-border-custom flex flex-col h-screen fixed left-0 top-0 transition-colors duration-300">
+            {/* Header */}
+            <div className="p-6 border-b border-border-custom">
+                <h2 className="text-xl font-bold text-primary m-0 flex items-center gap-2">
                     🧪 LabManager
                 </h2>
             </div>
 
-            <nav className="sidebar-nav">
+            {/* Navigation */}
+            <nav className="flex-1 p-4 flex flex-col gap-2">
                 {menuItems.map((item) => (
                     <Link
                         key={item.path}
                         to={item.path}
-                        className={`nav-item ${location.pathname === item.path ? 'active' : ''}`}
+                        className={`flex items-center gap-3 py-3 px-4 rounded-lg text-muted transition-all duration-200 hover:bg-primary hover:text-white ${location.pathname === item.path ? 'bg-primary text-white' : ''
+                            }`}
                     >
                         <item.icon size={20} />
-                        <span className="nav-label">{item.label}</span>
+                        <span className="font-medium">{item.label}</span>
                     </Link>
                 ))}
             </nav>
 
-            <div className="sidebar-footer">
-                <button onClick={toggleTheme} className="nav-item full-width">
+            {/* Footer */}
+            <div className="p-4 border-t border-border-custom">
+                <button
+                    onClick={toggleTheme}
+                    className="flex items-center gap-3 py-3 px-4 rounded-lg text-muted w-full transition-all duration-200 hover:bg-hover-bg hover:text-primary"
+                >
                     {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                    <span className="nav-label">
+                    <span className="font-medium">
                         {theme === 'dark' ? 'Aydınlık Mod' : 'Karanlık Mod'}
                     </span>
                 </button>
-                <button className="nav-item full-width">
+                <button className="flex items-center gap-3 py-3 px-4 rounded-lg text-muted w-full transition-all duration-200 hover:bg-hover-bg hover:text-primary">
                     <LogOut size={20} />
-                    <span className="nav-label">Çıkış Yap</span>
+                    <span className="font-medium">Çıkış Yap</span>
                 </button>
             </div>
         </div>
