@@ -1,6 +1,7 @@
-import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText, User } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -12,7 +13,9 @@ import {
 
 export default function Sidebar() {
     const location = useLocation();
+    const navigate = useNavigate();
     const { theme, toggleTheme } = useTheme();
+    const { user, logout } = useAuth();
 
     const menuItems = [
         { icon: Home, label: 'Panel', path: '/' },
@@ -21,6 +24,11 @@ export default function Sidebar() {
         { icon: FileText, label: 'Protokoller', path: '/protocols' },
         { icon: Settings, label: 'Ayarlar', path: '/settings' },
     ];
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
 
     return (
         <TooltipProvider>
@@ -65,6 +73,20 @@ export default function Sidebar() {
                 {/* Footer */}
                 <div className="p-3 space-y-1">
                     <Separator className="mb-3" />
+
+                    {/* Kullanıcı bilgisi */}
+                    {user && (
+                        <div className="flex items-center gap-3 px-3 py-2 mb-2">
+                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                                <User size={16} className="text-primary" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-foreground truncate">{user.fullName}</p>
+                                <p className="text-xs text-muted-foreground truncate">{user.username}</p>
+                            </div>
+                        </div>
+                    )}
+
                     <Button
                         variant="ghost"
                         onClick={toggleTheme}
@@ -75,6 +97,7 @@ export default function Sidebar() {
                     </Button>
                     <Button
                         variant="ghost"
+                        onClick={handleLogout}
                         className="w-full justify-start gap-3 h-11 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     >
                         <LogOut size={20} />
@@ -85,3 +108,4 @@ export default function Sidebar() {
         </TooltipProvider>
     );
 }
+
