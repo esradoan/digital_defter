@@ -1,12 +1,40 @@
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Database, PackageOpen, AlertTriangle } from 'lucide-react';
+import cabinetService from '../services/cabinetService';
+import productService from '../services/productService';
 
 export default function Dashboard() {
+    const [cabinetCount, setCabinetCount] = useState(0);
+    const [productCount, setProductCount] = useState(0);
+    const [criticalCount, setCriticalCount] = useState(0);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const [cabinets, products] = await Promise.all([
+                    cabinetService.getAll(),
+                    productService.getAll()
+                ]);
+                setCabinetCount(cabinets.length);
+                setProductCount(products.length);
+                // Kritik stok: miktarı 5 veya altında olan ürünler
+                const critical = products.filter(p => p.quantity !== undefined && p.quantity <= 5);
+                setCriticalCount(critical.length);
+            } catch (err) {
+                console.error('Dashboard verisi yüklenemedi:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
+
     const stats = [
-        { title: 'Toplam Dolap', value: '8', icon: Database, color: 'text-sky-400', bgColor: 'bg-sky-500/10' },
-        { title: 'Toplam Ürün', value: '245', icon: PackageOpen, color: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
-        { title: 'Kritik Stok', value: '3', icon: AlertTriangle, color: 'text-red-400', bgColor: 'bg-red-500/10', danger: true },
+        { title: 'Toplam Dolap', value: cabinetCount, icon: Database, color: 'text-sky-400', bgColor: 'bg-sky-500/10' },
+        { title: 'Toplam Ürün', value: productCount, icon: PackageOpen, color: 'text-emerald-400', bgColor: 'bg-emerald-500/10' },
+        { title: 'Kritik Stok', value: criticalCount, icon: AlertTriangle, color: 'text-red-400', bgColor: 'bg-red-500/10', danger: true },
     ];
 
     return (
@@ -18,7 +46,7 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 {stats.map((stat) => (
-                    <Card key={stat.title} className="bg-card border-border hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+                    <Card key={stat.title} className="hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground">
                                 {stat.title}
@@ -29,7 +57,7 @@ export default function Dashboard() {
                         </CardHeader>
                         <CardContent>
                             <p className={`text-4xl font-bold ${stat.danger ? 'text-red-400' : 'text-primary'}`}>
-                                {stat.value}
+                                {loading ? '…' : stat.value}
                             </p>
                         </CardContent>
                     </Card>
