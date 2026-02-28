@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Cabinets from './pages/Cabinets';
 import CabinetDetail from './pages/CabinetDetail';
 import Products from './pages/Products';
+import Protocols from './pages/Protocols';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route path="/cabinets" element={<Cabinets />} />
             <Route path="/cabinets/:id" element={<CabinetDetail />} />
             <Route path="/products" element={<Products />} />
+            <Route path="/protocols" element={<Protocols />} />
             <Route path="*" element={<div>Sayfa bulunamadı</div>} />
           </Routes>
         </Layout>

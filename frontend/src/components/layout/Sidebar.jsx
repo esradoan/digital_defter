@@ -1,4 +1,4 @@
-import { Home, Box, Database, Settings, LogOut, Sun, Moon } from 'lucide-react';
+import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ export default function Sidebar() {
         { icon: Home, label: 'Panel', path: '/' },
         { icon: Database, label: 'Dolaplar', path: '/cabinets' },
         { icon: Box, label: 'Ürünler', path: '/products' },
+        { icon: FileText, label: 'Protokoller', path: '/protocols' },
         { icon: Settings, label: 'Ayarlar', path: '/settings' },
     ];
 
@@ -44,8 +45,8 @@ export default function Sidebar() {
                                         <Button
                                             variant={isActive ? 'default' : 'ghost'}
                                             className={`w-full justify-start gap-3 h-11 text-[15px] ${isActive
-                                                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
-                                                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                                                ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                                                : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                                                 }`}
                                         >
                                             <item.icon size={20} />

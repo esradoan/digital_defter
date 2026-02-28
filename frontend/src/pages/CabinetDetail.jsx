@@ -37,7 +37,8 @@ export default function CabinetDetail() {
     const [productForm, setProductForm] = useState({
         name: '',
         catalogNumber: '',
-        quantity: ''
+        quantity: '',
+        unit: ''
     });
 
     useEffect(() => {
@@ -72,7 +73,7 @@ export default function CabinetDetail() {
     };
 
     const resetForm = () => {
-        setProductForm({ name: '', catalogNumber: '', quantity: '' });
+        setProductForm({ name: '', catalogNumber: '', quantity: '', unit: '' });
         setEditingProductId(null);
         setActiveCategoryId(null);
     };
@@ -89,7 +90,8 @@ export default function CabinetDetail() {
         setProductForm({
             name: product.name || '',
             catalogNumber: product.catalogNumber || '',
-            quantity: product.quantity !== undefined ? String(product.quantity) : ''
+            quantity: product.quantity !== undefined ? String(product.quantity) : '',
+            unit: product.unit || ''
         });
         setIsProductModalOpen(true);
     };
@@ -102,6 +104,7 @@ export default function CabinetDetail() {
                 categoryId: activeCategoryId || null,
                 catalogNumber: productForm.catalogNumber || null,
                 quantity: productForm.quantity ? parseFloat(productForm.quantity) : 0,
+                unit: productForm.unit || null,
                 storageLocationId: parseInt(id)
             };
 
@@ -184,6 +187,7 @@ export default function CabinetDetail() {
                         <TableHead className="text-muted-foreground font-semibold">Ürün Adı</TableHead>
                         <TableHead className="text-muted-foreground font-semibold">Katalog No</TableHead>
                         <TableHead className="text-muted-foreground font-semibold text-center">Miktar</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-center">Adet</TableHead>
                         <TableHead className="text-muted-foreground font-semibold text-center w-[100px]">İşlemler</TableHead>
                     </TableRow>
                 </TableHeader>
@@ -196,6 +200,9 @@ export default function CabinetDetail() {
                                 <Badge variant="secondary" className="bg-primary/10 text-primary border-0 font-semibold">
                                     {product.quantity}
                                 </Badge>
+                            </TableCell>
+                            <TableCell className="text-center text-muted-foreground text-sm">
+                                {product.unit || '-'}
                             </TableCell>
                             <TableCell>
                                 <div className="flex justify-center gap-1">
@@ -409,6 +416,15 @@ export default function CabinetDetail() {
                                     placeholder="Miktar"
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-sm text-muted-foreground mb-2">Adet / Birim</label>
+                            <Input
+                                value={productForm.unit}
+                                onChange={e => setProductForm({ ...productForm, unit: e.target.value })}
+                                placeholder="Örn: adet, kutu, ml, mg, litre"
+                            />
                         </div>
 
                         <Button type="submit" className="w-full mt-1">

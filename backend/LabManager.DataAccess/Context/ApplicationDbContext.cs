@@ -19,6 +19,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Equipment> Equipment { get; set; }
     public DbSet<StockMovement> StockMovements { get; set; }
     public DbSet<ActivityLog> ActivityLogs { get; set; }
+    public DbSet<Protocol> Protocols { get; set; }
+    public DbSet<ProtocolCategory> ProtocolCategories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
