@@ -14,13 +14,25 @@ public class LabNoteService : ILabNoteService
         _labNoteRepository = labNoteRepository;
     }
 
-    public async Task<IEnumerable<LabNoteDto>> GetUserNotesAsync(int userId)
+    public async Task<IEnumerable<LabNoteDto>> GetUserNotesAsync(int userId, int? month = null, string sortOrder = "desc")
     {
         var notes = await _labNoteRepository.FindAsync(n => n.UserId == userId);
 
-        return notes
-            .OrderByDescending(n => n.CreatedAt)
-            .Select(n => MapToDto(n));
+        if (month.HasValue && month.Value is >= 1 and <= 12)
+        {
+            notes = notes.Where(n => n.CreatedAt.Month == month.Value);
+        }
+
+        if (sortOrder.Equals("asc", StringComparison.OrdinalIgnoreCase))
+        {
+            notes = notes.OrderBy(n => n.CreatedAt);
+        }
+        else
+        {
+            notes = notes.OrderByDescending(n => n.CreatedAt);
+        }
+
+        return notes.Select(n => MapToDto(n));
     }
 
     public async Task<LabNoteDto?> GetByIdAsync(int id, int userId)
@@ -40,6 +52,8 @@ public class LabNoteService : ILabNoteService
         {
             Title = dto.Title,
             Content = dto.Content,
+            ExperimentNumber = dto.ExperimentNumber,
+            ExperimentName = dto.ExperimentName,
             UserId = userId,
             CreatedAt = DateTime.UtcNow
         };
@@ -58,6 +72,8 @@ public class LabNoteService : ILabNoteService
 
         note.Title = dto.Title;
         note.Content = dto.Content;
+        note.ExperimentNumber = dto.ExperimentNumber;
+        note.ExperimentName = dto.ExperimentName;
         note.UpdatedAt = DateTime.UtcNow;
 
         await _labNoteRepository.UpdateAsync(note);
@@ -83,6 +99,8 @@ public class LabNoteService : ILabNoteService
             Id = note.Id,
             Title = note.Title,
             Content = note.Content,
+            ExperimentNumber = note.ExperimentNumber,
+            ExperimentName = note.ExperimentName,
             CreatedAt = note.CreatedAt,
             UpdatedAt = note.UpdatedAt
         };

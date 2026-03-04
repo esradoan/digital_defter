@@ -33,6 +33,11 @@ const protocolService = {
     createCategory: async (data) => {
         const response = await api.post('/protocols/categories', data);
         return response.data.data || response.data;
+    },
+
+    deleteCategory: async (id) => {
+        const response = await api.delete(`/protocols/categories/${id}`);
+        return response.data;
     }
 };
 

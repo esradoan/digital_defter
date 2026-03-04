@@ -1,8 +1,16 @@
 import api from './api';
 
 const labNoteService = {
-    getAll: async () => {
-        const response = await api.get('/labnotes');
+    getAll: async (month = '', sortOrder = 'desc') => {
+        let url = '/labnotes';
+        const params = new URLSearchParams();
+        if (month && month !== 'all') params.append('month', month);
+        if (sortOrder) params.append('sortOrder', sortOrder);
+
+        if (params.toString()) {
+            url += '?' + params.toString();
+        }
+        const response = await api.get(url);
         return response.data;
     },
 

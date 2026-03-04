@@ -10,4 +10,10 @@ public class CreateLabNoteDto
 
     [Required(ErrorMessage = "İçerik zorunludur")]
     public string Content { get; set; } = string.Empty;
+
+    [StringLength(50, ErrorMessage = "Deney No 50 karakteri geçemez")]
+    public string? ExperimentNumber { get; set; }
+
+    [StringLength(200, ErrorMessage = "Deney Adı 200 karakteri geçemez")]
+    public string? ExperimentName { get; set; }
 }

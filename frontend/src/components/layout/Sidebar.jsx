@@ -1,4 +1,4 @@
-import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText, User, BookOpen } from 'lucide-react';
+import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText, User, BookOpen, Monitor, Warehouse as WarehouseIcon } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -19,9 +19,11 @@ export default function Sidebar() {
 
     const menuItems = [
         { icon: Home, label: 'Panel', path: '/' },
+        { icon: WarehouseIcon, label: 'Ana Depolar', path: '/warehouses' },
         { icon: Database, label: 'Dolaplar', path: '/cabinets' },
         { icon: Box, label: 'Ürünler', path: '/products' },
         { icon: FileText, label: 'Protokoller', path: '/protocols' },
+        { icon: Monitor, label: 'Cihazlar', path: '/devices' },
         { icon: BookOpen, label: 'Lab Defteri', path: '/lab-notebook' },
         { icon: Settings, label: 'Ayarlar', path: '/settings' },
     ];

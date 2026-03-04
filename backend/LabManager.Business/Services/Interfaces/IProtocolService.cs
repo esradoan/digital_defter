@@ -13,4 +13,5 @@ public interface IProtocolService
     // Kategori işlemleri
     Task<IEnumerable<ProtocolCategoryDto>> GetCategoriesAsync();
     Task<ProtocolCategoryDto> CreateCategoryAsync(string name, string? description = null);
+    Task DeleteCategoryAsync(int id);
 }

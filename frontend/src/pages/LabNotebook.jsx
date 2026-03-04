@@ -4,32 +4,36 @@ import labNoteService from '../services/labNoteService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 export default function LabNotebook() {
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [monthFilter, setMonthFilter] = useState('');
+    const [sortOrder, setSortOrder] = useState('desc');
 
     // Seçili not
     const [selectedNote, setSelectedNote] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
     // Form
-    const [editForm, setEditForm] = useState({ title: '', content: '' });
+    const [editForm, setEditForm] = useState({ title: '', content: '', experimentNumber: '', experimentName: '' });
 
     // Yeni not dialog
     const [isNewNoteOpen, setIsNewNoteOpen] = useState(false);
-    const [newNoteForm, setNewNoteForm] = useState({ title: '', content: '' });
+    const [newNoteForm, setNewNoteForm] = useState({ title: '', content: '', experimentNumber: '', experimentName: '' });
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         fetchNotes();
-    }, []);
+    }, [monthFilter, sortOrder]);
 
     const fetchNotes = async () => {
+        setLoading(true);
         try {
-            const response = await labNoteService.getAll();
+            const response = await labNoteService.getAll(monthFilter, sortOrder);
             setNotes(response.data || []);
         } catch (err) {
             console.error('Not yükleme hatası:', err);
@@ -46,7 +50,7 @@ export default function LabNotebook() {
         try {
             await labNoteService.create(newNoteForm);
             setIsNewNoteOpen(false);
-            setNewNoteForm({ title: '', content: '' });
+            setNewNoteForm({ title: '', content: '', experimentNumber: '', experimentName: '' });
             await fetchNotes();
         } catch (err) {
             console.error('Not oluşturma hatası:', err);
@@ -91,17 +95,17 @@ export default function LabNotebook() {
 
     const handleSelectNote = (note) => {
         setSelectedNote(note);
-        setEditForm({ title: note.title, content: note.content });
+        setEditForm({ title: note.title, content: note.content, experimentNumber: note.experimentNumber || '', experimentName: note.experimentName || '' });
         setIsEditing(false);
     };
 
     const handleStartEditing = () => {
-        setEditForm({ title: selectedNote.title, content: selectedNote.content });
+        setEditForm({ title: selectedNote.title, content: selectedNote.content, experimentNumber: selectedNote.experimentNumber || '', experimentName: selectedNote.experimentName || '' });
         setIsEditing(true);
     };
 
     const handleCancelEditing = () => {
-        setEditForm({ title: selectedNote.title, content: selectedNote.content });
+        setEditForm({ title: selectedNote.title, content: selectedNote.content, experimentNumber: selectedNote.experimentNumber || '', experimentName: selectedNote.experimentName || '' });
         setIsEditing(false);
     };
 
@@ -141,7 +145,7 @@ export default function LabNotebook() {
 
                 {/* Sol Panel: Not Listesi */}
                 <div className="w-80 flex-shrink-0 flex flex-col gap-3">
-                    {/* Arama */}
+                    {/* Arama ve Filtreler */}
                     <div className="relative">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                         <Input
@@ -150,6 +154,38 @@ export default function LabNotebook() {
                             onChange={e => setSearchTerm(e.target.value)}
                             className="pl-9"
                         />
+                    </div>
+                    <div className="flex gap-2">
+                        <Select value={monthFilter} onValueChange={setMonthFilter}>
+                            <SelectTrigger className="flex-1 text-xs">
+                                <SelectValue placeholder="Ay Seçimi" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Tüm Aylar</SelectItem>
+                                <SelectItem value="1">Ocak</SelectItem>
+                                <SelectItem value="2">Şubat</SelectItem>
+                                <SelectItem value="3">Mart</SelectItem>
+                                <SelectItem value="4">Nisan</SelectItem>
+                                <SelectItem value="5">Mayıs</SelectItem>
+                                <SelectItem value="6">Haziran</SelectItem>
+                                <SelectItem value="7">Temmuz</SelectItem>
+                                <SelectItem value="8">Ağustos</SelectItem>
+                                <SelectItem value="9">Eylül</SelectItem>
+                                <SelectItem value="10">Ekim</SelectItem>
+                                <SelectItem value="11">Kasım</SelectItem>
+                                <SelectItem value="12">Aralık</SelectItem>
+                            </SelectContent>
+                        </Select>
+
+                        <Select value={sortOrder} onValueChange={setSortOrder}>
+                            <SelectTrigger className="flex-1 text-xs">
+                                <SelectValue placeholder="Sıralama" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="desc">Yeniden Eskiye</SelectItem>
+                                <SelectItem value="asc">Eskiden Yeniye</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     {/* Not Listesi */}
@@ -174,6 +210,20 @@ export default function LabNotebook() {
                                         }`}
                                 >
                                     <h4 className="font-medium text-foreground text-sm truncate">{note.title}</h4>
+                                    {(note.experimentNumber || note.experimentName) && (
+                                        <div className="flex items-center gap-1 mt-1.5 mb-2">
+                                            {note.experimentNumber && (
+                                                <span className="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                                                    #{note.experimentNumber}
+                                                </span>
+                                            )}
+                                            {note.experimentName && (
+                                                <span className="text-[10px] text-muted-foreground truncate">
+                                                    {note.experimentName}
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
                                     <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{note.content}</p>
                                     <div className="flex items-center gap-1.5 mt-2 text-xs text-muted-foreground/70">
                                         <Clock size={11} />
@@ -256,6 +306,24 @@ export default function LabNotebook() {
                                                 placeholder="Not başlığı"
                                             />
                                         </div>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm text-muted-foreground mb-2">Deney No</label>
+                                                <Input
+                                                    value={editForm.experimentNumber}
+                                                    onChange={e => setEditForm({ ...editForm, experimentNumber: e.target.value })}
+                                                    placeholder="Örn: EXP-001"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm text-muted-foreground mb-2">Deney Adı</label>
+                                                <Input
+                                                    value={editForm.experimentName}
+                                                    onChange={e => setEditForm({ ...editForm, experimentName: e.target.value })}
+                                                    placeholder="Deneyin kısa adı"
+                                                />
+                                            </div>
+                                        </div>
                                         <div className="flex-1 flex flex-col">
                                             <label className="block text-sm text-muted-foreground mb-2">İçerik</label>
                                             <textarea
@@ -270,6 +338,27 @@ export default function LabNotebook() {
                                 ) : (
                                     <div className="flex-1">
                                         <h2 className="text-xl font-semibold text-foreground mb-4">{selectedNote.title}</h2>
+                                        {(selectedNote.experimentNumber || selectedNote.experimentName) && (
+                                            <div className="flex items-center gap-3 mb-6 p-4 bg-muted/50 rounded-xl border border-border/50">
+                                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                                    <FileText size={18} />
+                                                </div>
+                                                <div>
+                                                    <div className="text-xs font-medium text-muted-foreground mb-0.5">Deney Bilgisi</div>
+                                                    <div className="text-sm font-medium text-foreground flex items-center gap-2">
+                                                        {selectedNote.experimentNumber && (
+                                                            <span className="text-primary font-semibold">#{selectedNote.experimentNumber}</span>
+                                                        )}
+                                                        {selectedNote.experimentNumber && selectedNote.experimentName && (
+                                                            <span className="text-muted-foreground/30">•</span>
+                                                        )}
+                                                        {selectedNote.experimentName && (
+                                                            <span>{selectedNote.experimentName}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="text-sm text-foreground/90 whitespace-pre-wrap leading-relaxed">
                                             {selectedNote.content}
                                         </div>
@@ -310,6 +399,24 @@ export default function LabNotebook() {
                                 placeholder="Not başlığı"
                                 required
                             />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-sm text-muted-foreground mb-2">Deney No</label>
+                                <Input
+                                    value={newNoteForm.experimentNumber}
+                                    onChange={e => setNewNoteForm({ ...newNoteForm, experimentNumber: e.target.value })}
+                                    placeholder="Örn: EXP-001"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm text-muted-foreground mb-2">Deney Adı</label>
+                                <Input
+                                    value={newNoteForm.experimentName}
+                                    onChange={e => setNewNoteForm({ ...newNoteForm, experimentName: e.target.value })}
+                                    placeholder="Deneyin kısa adı"
+                                />
+                            </div>
                         </div>
                         <div>
                             <label className="block text-sm text-muted-foreground mb-2">İçerik</label>

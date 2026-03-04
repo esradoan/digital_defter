@@ -20,6 +20,12 @@ public class LabNoteConfiguration : IEntityTypeConfiguration<LabNote>
             .IsRequired()
             .HasColumnType("longtext");
 
+        builder.Property(n => n.ExperimentNumber)
+            .HasMaxLength(50);
+
+        builder.Property(n => n.ExperimentName)
+            .HasMaxLength(200);
+
         builder.HasOne(n => n.User)
             .WithMany(u => u.LabNotes)
             .HasForeignKey(n => n.UserId)

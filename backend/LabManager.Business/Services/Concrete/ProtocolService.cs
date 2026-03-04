@@ -159,4 +159,11 @@ public class ProtocolService : IProtocolService
             ProtocolCount = 0
         };
     }
+
+    public async Task DeleteCategoryAsync(int id)
+    {
+        var category = await _protocolCategoryRepository.GetByIdAsync(id);
+        if (category == null) throw new Exception("Kategori bulunamadı");
+        await _protocolCategoryRepository.DeleteAsync(category);
+    }
 }

@@ -132,6 +132,20 @@ public class ProtocolsController : ControllerBase
         var category = await _protocolService.CreateCategoryAsync(request.Name, request.Description);
         return Ok(ApiResponse<ProtocolCategoryDto>.SuccessResponse(category));
     }
+
+    [HttpDelete("categories/{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> DeleteCategory(int id)
+    {
+        try
+        {
+            await _protocolService.DeleteCategoryAsync(id);
+            return Ok(ApiResponse<bool>.SuccessResponse(true, "Kategori silindi"));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<bool>.ErrorResponse(ex.Message));
+        }
+    }
 }
 
 public class CreateProtocolCategoryRequest

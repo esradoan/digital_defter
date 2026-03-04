@@ -35,6 +35,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IStorageLocationService, StorageLocationService>();
 builder.Services.AddScoped<IProtocolService, ProtocolService>();
 builder.Services.AddScoped<ILabNoteService, LabNoteService>();
+builder.Services.AddScoped<IDeviceService, DeviceService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 
 // ====================
 // 4. JWT AUTHENTICATION
@@ -73,7 +75,10 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                   "http://localhost:3000",
                   "http://localhost:5173",
-                  "http://localhost:5174"
+                  "http://localhost:5174",
+                  "http://localhost:5175",
+                  "http://localhost:5176",
+                  "http://localhost:5177"
               )
               .AllowAnyHeader()
               .AllowAnyMethod()

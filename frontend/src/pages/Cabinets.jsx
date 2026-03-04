@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Thermometer, Box, Archive, Plus, Edit as EditIcon, Save } from 'lucide-react';
+import { Thermometer, Box, Archive, Plus, Edit as EditIcon, Save, Search } from 'lucide-react';
 import cabinetService from '../services/cabinetService';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,7 @@ export default function Cabinets() {
     const [cabinets, setCabinets] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -113,7 +114,7 @@ export default function Cabinets() {
     return (
         <div>
             {/* Header */}
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex justify-between items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-bold text-foreground">Dolaplar</h1>
                     <p className="text-muted-foreground mt-1">Tüm depolama alanlarınızı yönetin</p>
@@ -121,6 +122,17 @@ export default function Cabinets() {
                 <Button onClick={handleCreateClick} className="gap-2 shadow-md shadow-primary/20">
                     <Plus size={20} /> Yeni Dolap
                 </Button>
+            </div>
+
+            {/* Search */}
+            <div className="relative mb-6">
+                <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Dolap ara..."
+                    className="pl-10"
+                />
             </div>
 
             {/* Empty State */}
@@ -137,7 +149,11 @@ export default function Cabinets() {
             ) : (
                 /* Cabinet Grid */
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                    {cabinets.map((cabinet) => (
+                    {cabinets.filter(c =>
+                        c.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        c.temperatureCondition?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        c.capacityInfo?.toLowerCase().includes(searchQuery.toLowerCase())
+                    ).map((cabinet) => (
                         <Card
                             key={cabinet.id}
                             className="group hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"

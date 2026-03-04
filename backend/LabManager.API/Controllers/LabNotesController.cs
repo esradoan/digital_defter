@@ -34,10 +34,10 @@ public class LabNotesController : ControllerBase
     /// Kullanıcının tüm notlarını listele
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<ApiResponse<IEnumerable<LabNoteDto>>>> GetAll()
+    public async Task<ActionResult<ApiResponse<IEnumerable<LabNoteDto>>>> GetAll([FromQuery] int? month, [FromQuery] string sortOrder = "desc")
     {
         var userId = GetUserId();
-        var notes = await _labNoteService.GetUserNotesAsync(userId);
+        var notes = await _labNoteService.GetUserNotesAsync(userId, month, sortOrder);
         return Ok(ApiResponse<IEnumerable<LabNoteDto>>.SuccessResponse(notes));
     }
 
