@@ -10,5 +10,6 @@ public class User : BaseEntity
     public UserRole Role { get; set; }
     public string FullName { get; set; } = string.Empty;
     public DateTime? LastLogin { get; set; }
+    public ICollection<LabNote> LabNotes { get; set; } = new List<LabNote>();
 }
 

@@ -1,4 +1,4 @@
-import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText, User } from 'lucide-react';
+import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText, User, BookOpen } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -22,6 +22,7 @@ export default function Sidebar() {
         { icon: Database, label: 'Dolaplar', path: '/cabinets' },
         { icon: Box, label: 'Ürünler', path: '/products' },
         { icon: FileText, label: 'Protokoller', path: '/protocols' },
+        { icon: BookOpen, label: 'Lab Defteri', path: '/lab-notebook' },
         { icon: Settings, label: 'Ayarlar', path: '/settings' },
     ];
 

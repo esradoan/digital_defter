@@ -34,6 +34,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IStorageLocationService, StorageLocationService>();
 builder.Services.AddScoped<IProtocolService, ProtocolService>();
+builder.Services.AddScoped<ILabNoteService, LabNoteService>();
 
 // ====================
 // 4. JWT AUTHENTICATION

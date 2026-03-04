@@ -7,6 +7,7 @@ import Cabinets from './pages/Cabinets';
 import CabinetDetail from './pages/CabinetDetail';
 import Products from './pages/Products';
 import Protocols from './pages/Protocols';
+import LabNotebook from './pages/LabNotebook';
 import Login from './pages/Login';
 
 // Korumalı route: giriş yapılmamışsa login'e yönlendir
@@ -41,6 +42,7 @@ function AppRoutes() {
                 <Route path="/cabinets/:id" element={<CabinetDetail />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/protocols" element={<Protocols />} />
+                <Route path="/lab-notebook" element={<LabNotebook />} />
                 <Route path="*" element={<div>Sayfa bulunamadı</div>} />
               </Routes>
             </Layout>

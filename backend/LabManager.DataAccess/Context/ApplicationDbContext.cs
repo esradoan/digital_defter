@@ -21,6 +21,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<ActivityLog> ActivityLogs { get; set; }
     public DbSet<Protocol> Protocols { get; set; }
     public DbSet<ProtocolCategory> ProtocolCategories { get; set; }
+    public DbSet<LabNote> LabNotes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
