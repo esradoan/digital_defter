@@ -23,7 +23,10 @@ public class ProductService : IProductService
 
     public async Task<IEnumerable<ProductDto>> GetAllAsync()
     {
-        var products = await _productRepository.GetAllAsync();
+        var products = await _productRepository.GetAllAsync(
+            p => p.Category,
+            p => p.StorageLocation
+        );
         var productDtos = new List<ProductDto>();
 
         foreach (var product in products)
@@ -36,7 +39,10 @@ public class ProductService : IProductService
 
     public async Task<ProductDto?> GetByIdAsync(int id)
     {
-        var product = await _productRepository.GetByIdAsync(id);
+        var product = await _productRepository.GetByIdAsync(id, 
+            p => p.Category,
+            p => p.StorageLocation
+        );
         if (product == null)
             return null;
 
@@ -73,7 +79,10 @@ public class ProductService : IProductService
 
     public async Task<ProductDto> UpdateAsync(UpdateProductDto dto)
     {
-        var product = await _productRepository.GetByIdAsync(dto.Id);
+        var product = await _productRepository.GetByIdAsync(dto.Id, 
+            p => p.Category,
+            p => p.StorageLocation
+        );
         if (product == null)
             throw new Exception("Ürün bulunamadı");
 
@@ -112,7 +121,10 @@ public class ProductService : IProductService
     public async Task<IEnumerable<ProductDto>> GetLowStockProductsAsync()
     {
         var products = await _productRepository.FindAsync(p => 
-            p.MinStockLevel.HasValue && p.Quantity <= p.MinStockLevel.Value);
+            p.MinStockLevel.HasValue && p.Quantity <= p.MinStockLevel.Value,
+            p => p.Category,
+            p => p.StorageLocation
+        );
         
         var productDtos = new List<ProductDto>();
         foreach (var product in products)
@@ -127,7 +139,10 @@ public class ProductService : IProductService
     {
         var expiryDate = DateTime.UtcNow.AddDays(days);
         var products = await _productRepository.FindAsync(p => 
-            p.ExpiryDate.HasValue && p.ExpiryDate.Value <= expiryDate);
+            p.ExpiryDate.HasValue && p.ExpiryDate.Value <= expiryDate,
+            p => p.Category,
+            p => p.StorageLocation
+        );
         
         var productDtos = new List<ProductDto>();
         foreach (var product in products)
@@ -140,7 +155,10 @@ public class ProductService : IProductService
 
     public async Task<IEnumerable<ProductDto>> GetByCategoryAsync(int categoryId)
     {
-        var products = await _productRepository.FindAsync(p => p.CategoryId == categoryId);
+        var products = await _productRepository.FindAsync(p => p.CategoryId == categoryId,
+            p => p.Category,
+            p => p.StorageLocation
+        );
         
         var productDtos = new List<ProductDto>();
         foreach (var product in products)
@@ -159,18 +177,9 @@ public class ProductService : IProductService
     // Helper: Entity'den DTO'ya dönüşüm
     private async Task<ProductDto> MapToDto(Product product)
     {
-        Category? category = null;
-        if (product.CategoryId.HasValue)
-        {
-            category = await _categoryRepository.GetByIdAsync(product.CategoryId.Value);
-        }
-
-        StorageLocation? storageLocation = null;
-        
-        if (product.StorageLocationId.HasValue)
-        {
-            storageLocation = await _storageLocationRepository.GetByIdAsync(product.StorageLocationId.Value);
-        }
+        // Category and StorageLocation are pre-loaded via EF Core Includes, no extra DB calls needed
+        Category? category = product.Category;
+        StorageLocation? storageLocation = product.StorageLocation;
 
         bool isLowStock = product.MinStockLevel.HasValue && product.Quantity <= product.MinStockLevel.Value;
         bool isExpiringSoon = product.ExpiryDate.HasValue && product.ExpiryDate.Value <= DateTime.UtcNow.AddDays(30);

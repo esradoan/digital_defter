@@ -40,7 +40,7 @@ export default function Login() {
         setLoading(true);
         try {
             await register(registerForm.username, registerForm.email, registerForm.password, registerForm.fullName);
-            setSuccess('Hesap oluşturuldu! Şimdi giriş yapabilirsiniz.');
+            setSuccess('Hesabınız başarıyla oluşturuldu! Yönetici onayından sonra giriş yapabilirsiniz.');
             setIsLogin(true);
             setLoginForm({ username: registerForm.username, password: '' });
         } catch (err) {
@@ -67,8 +67,8 @@ export default function Login() {
                     <button
                         onClick={() => { setIsLogin(true); setError(''); }}
                         className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${isLogin
-                                ? 'bg-card text-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground'
+                            ? 'bg-card text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
                             }`}
                     >
                         <LogIn size={16} /> Giriş Yap
@@ -76,8 +76,8 @@ export default function Login() {
                     <button
                         onClick={() => { setIsLogin(false); setError(''); setSuccess(''); }}
                         className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${!isLogin
-                                ? 'bg-card text-foreground shadow-sm'
-                                : 'text-muted-foreground hover:text-foreground'
+                            ? 'bg-card text-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
                             }`}
                     >
                         <UserPlus size={16} /> Kayıt Ol

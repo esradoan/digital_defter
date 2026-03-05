@@ -16,19 +16,45 @@ public class Repository<T> : IRepository<T> where T : class
         _dbSet = context.Set<T>();
     }
 
-    public async Task<T?> GetByIdAsync(int id)
+    public async Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
     {
-        return await _dbSet.FindAsync(id);
+        IQueryable<T> query = _dbSet;
+        if (includes != null)
+        {
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+        }
+        
+        // FindAsync is not supported on IQueryable with Includes, so use FirstOrDefaultAsync
+        return await query.FirstOrDefaultAsync(e => EF.Property<int>(e, "Id") == id);
     }
 
-    public async Task<IEnumerable<T>> GetAllAsync()
+    public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes)
     {
-        return await _dbSet.ToListAsync();
+        IQueryable<T> query = _dbSet;
+        if (includes != null)
+        {
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+        }
+        return await query.ToListAsync();
     }
 
-    public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
+    public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
     {
-        return await _dbSet.Where(predicate).ToListAsync();
+        IQueryable<T> query = _dbSet;
+        if (includes != null)
+        {
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+        }
+        return await query.Where(predicate).ToListAsync();
     }
 
     public async Task<int> CountAsync(Expression<Func<T, bool>>? predicate = null)

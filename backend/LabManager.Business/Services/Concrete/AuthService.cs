@@ -35,6 +35,12 @@ public class AuthService : IAuthService
         if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             return null;
 
+        // Onay kontrolü — Admin her zaman girebilir
+        if (!user.IsApproved && user.Role != UserRole.Admin)
+        {
+            throw new UnauthorizedAccessException("Hesabınız henüz yönetici tarafından onaylanmadı. Onaylandıktan sonra giriş yapabilirsiniz.");
+        }
+
         // Son login tarihini güncelle
         user.LastLogin = DateTime.UtcNow;
         await _userRepository.UpdateAsync(user);
@@ -61,14 +67,15 @@ public class AuthService : IAuthService
         if (existingUser)
             return null;
 
-        // Yeni kullanıcı oluştur
+        // Yeni kullanıcı oluştur — onay bekleyecek
         var user = new User
         {
             Username = dto.Username,
             Email = dto.Email,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
             FullName = dto.FullName,
-            Role = UserRole.Viewer, // Varsayılan rol
+            Role = UserRole.Student, // Varsayılan rol: Öğrenci
+            IsApproved = false, // Yönetici onayı gerekli
             CreatedAt = DateTime.UtcNow
         };
 

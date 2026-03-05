@@ -1,0 +1,14 @@
+﻿  Determining projects to restore...
+  All projects are up-to-date for restore.
+  LabManager.Entity -> C:\Users\desra\digital_defter\backend\LabManager.Entity\bin\Debug\net9.0\LabManager.Entity.dll
+  LabManager.DataAccess -> C:\Users\desra\digital_defter\backend\LabManager.DataAccess\bin\Debug\net9.0\LabManager.DataAccess.dll
+  LabManager.Business -> C:\Users\desra\digital_defter\backend\LabManager.Business\bin\Debug\net9.0\LabManager.Business.dll
+C:\Users\desra\digital_defter\backend\LabManager.API\Controllers\AuthController.cs(73,33): error CS1061: 'ClaimsPrincipal' does not contain a definition for 'FindFirstValue' and no accessible extension method 'FindFirstValue' accepting a first argument of type 'ClaimsPrincipal' could be found (are you missing a using directive or an assembly reference?) [C:\Users\desra\digital_defter\backend\LabManager.API\LabManager.API.csproj]
+
+Build FAILED.
+
+C:\Users\desra\digital_defter\backend\LabManager.API\Controllers\AuthController.cs(73,33): error CS1061: 'ClaimsPrincipal' does not contain a definition for 'FindFirstValue' and no accessible extension method 'FindFirstValue' accepting a first argument of type 'ClaimsPrincipal' could be found (are you missing a using directive or an assembly reference?) [C:\Users\desra\digital_defter\backend\LabManager.API\LabManager.API.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.96

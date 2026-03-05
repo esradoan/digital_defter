@@ -7,6 +7,8 @@ using LabManager.DataAccess.Repositories.Interfaces;
 using LabManager.DataAccess.Repositories.Concrete;
 using LabManager.Business.Services.Interfaces;
 using LabManager.Business.Services.Concrete;
+using LabManager.Entity.Entities;
+using LabManager.Entity.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +39,7 @@ builder.Services.AddScoped<IProtocolService, ProtocolService>();
 builder.Services.AddScoped<ILabNoteService, LabNoteService>();
 builder.Services.AddScoped<IDeviceService, DeviceService>();
 builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // ====================
 // 4. JWT AUTHENTICATION
@@ -116,5 +119,26 @@ app.MapControllers();
 
 // Test endpoint
 app.MapGet("/", () => "🧬 Lab Manager API is running!");
+// ====================
+// 8. ADMIN SEEDER — İlk admin hesabını oluştur
+// ====================
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    if (!db.Set<User>().Any(u => u.Role == UserRole.Admin))
+    {
+        db.Set<User>().Add(new User
+        {
+            Username = "admin",
+            Email = "admin@labmanager.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+            FullName = "Sistem Yöneticisi",
+            Role = UserRole.Admin,
+            IsApproved = true,
+            CreatedAt = DateTime.UtcNow
+        });
+        db.SaveChanges();
+    }
+}
 
 app.Run();

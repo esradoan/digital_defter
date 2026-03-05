@@ -188,7 +188,6 @@ export default function CabinetDetail() {
                         <TableHead className="text-muted-foreground font-semibold">Katalog No</TableHead>
                         <TableHead className="text-muted-foreground font-semibold text-center">Miktar</TableHead>
                         <TableHead className="text-muted-foreground font-semibold text-center">Adet</TableHead>
-                        <TableHead className="text-muted-foreground font-semibold text-center w-[100px]">İşlemler</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -203,28 +202,6 @@ export default function CabinetDetail() {
                             </TableCell>
                             <TableCell className="text-center text-muted-foreground text-sm">
                                 {product.unit || '-'}
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex justify-center gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-sky-400 hover:text-sky-300 hover:bg-sky-400/10"
-                                        onClick={() => openEditModal(product)}
-                                        title="Düzenle"
-                                    >
-                                        <Edit size={15} />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon"
-                                        className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-400/10"
-                                        onClick={() => handleDelete(product.id, product.name)}
-                                        title="Sil"
-                                    >
-                                        <Trash size={15} />
-                                    </Button>
-                                </div>
                             </TableCell>
                         </TableRow>
                     ))}
@@ -310,7 +287,7 @@ export default function CabinetDetail() {
                                         <div className="flex justify-end mb-4">
                                             <Button
                                                 size="sm"
-                                                onClick={() => openAddModal(category.id)}
+                                                onClick={() => navigate(`/products?cabinetId=${id}`)}
                                                 className="gap-1.5 shadow-sm"
                                             >
                                                 <Plus size={15} /> Yeni Ürün Ekle
@@ -377,62 +354,7 @@ export default function CabinetDetail() {
                 </Button>
             </div>
 
-            {/* Add/Edit Product Dialog */}
-            <Dialog open={isProductModalOpen} onOpenChange={setIsProductModalOpen}>
-                <DialogContent className="sm:max-w-md bg-card border-border">
-                    <DialogHeader>
-                        <DialogTitle>
-                            {editingProductId ? 'Ürünü Düzenle' : 'Yeni Ürün Ekle'}
-                        </DialogTitle>
-                        <DialogDescription>
-                            Bölme: <span className="text-primary font-medium">{activeCategoryName}</span>
-                        </DialogDescription>
-                    </DialogHeader>
-
-                    <form onSubmit={handleProductSubmit} className="flex flex-col gap-4 mt-2">
-                        <div>
-                            <label className="block text-sm text-muted-foreground mb-2">Ürün Adı</label>
-                            <Input
-                                value={productForm.name}
-                                onChange={e => setProductForm({ ...productForm, name: e.target.value })}
-                                placeholder="Ürün adı"
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-sm text-muted-foreground mb-2">Katalog No</label>
-                                <Input
-                                    value={productForm.catalogNumber}
-                                    onChange={e => setProductForm({ ...productForm, catalogNumber: e.target.value })}
-                                    placeholder="Katalog numarası"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-muted-foreground mb-2">Miktar</label>
-                                <Input
-                                    value={productForm.quantity}
-                                    onChange={e => setProductForm({ ...productForm, quantity: e.target.value })}
-                                    placeholder="Miktar"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm text-muted-foreground mb-2">Adet / Birim</label>
-                            <Input
-                                value={productForm.unit}
-                                onChange={e => setProductForm({ ...productForm, unit: e.target.value })}
-                                placeholder="Örn: adet, kutu, ml, mg, litre"
-                            />
-                        </div>
-
-                        <Button type="submit" className="w-full mt-1">
-                            {editingProductId ? 'Güncelle' : 'Kaydet'}
-                        </Button>
-                    </form>
-                </DialogContent>
-            </Dialog>
+            {/* Add/Edit Product Modal Removed */}
 
             {/* Delete Confirmation Dialog */}
             <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>

@@ -1,4 +1,4 @@
-import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText, User, BookOpen, Monitor, Warehouse as WarehouseIcon } from 'lucide-react';
+import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText, User, BookOpen, Monitor, Warehouse as WarehouseIcon, Users } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -25,6 +25,7 @@ export default function Sidebar() {
         { icon: FileText, label: 'Protokoller', path: '/protocols' },
         { icon: Monitor, label: 'Cihazlar', path: '/devices' },
         { icon: BookOpen, label: 'Lab Defteri', path: '/lab-notebook' },
+        { icon: Users, label: 'Kullanıcılar', path: '/users', adminOnly: true },
         { icon: Settings, label: 'Ayarlar', path: '/settings' },
     ];
 
@@ -47,30 +48,32 @@ export default function Sidebar() {
 
                 {/* Navigation */}
                 <nav className="flex-1 p-3 flex flex-col gap-1 mt-2">
-                    {menuItems.map((item) => {
-                        const isActive = location.pathname === item.path;
-                        return (
-                            <Tooltip key={item.path}>
-                                <TooltipTrigger asChild>
-                                    <Link to={item.path}>
-                                        <Button
-                                            variant={isActive ? 'default' : 'ghost'}
-                                            className={`w-full justify-start gap-3 h-11 text-[15px] ${isActive
-                                                ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
-                                                : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                                                }`}
-                                        >
-                                            <item.icon size={20} />
-                                            <span>{item.label}</span>
-                                        </Button>
-                                    </Link>
-                                </TooltipTrigger>
-                                <TooltipContent side="right">
-                                    <p>{item.label}</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        );
-                    })}
+                    {menuItems
+                        .filter(item => !item.adminOnly || (user && user.role === 'Admin'))
+                        .map((item) => {
+                            const isActive = location.pathname === item.path;
+                            return (
+                                <Tooltip key={item.path}>
+                                    <TooltipTrigger asChild>
+                                        <Link to={item.path}>
+                                            <Button
+                                                variant={isActive ? 'default' : 'ghost'}
+                                                className={`w-full justify-start gap-3 h-11 text-[15px] ${isActive
+                                                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                                                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                                                    }`}
+                                            >
+                                                <item.icon size={20} />
+                                                <span>{item.label}</span>
+                                            </Button>
+                                        </Link>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="right">
+                                        <p>{item.label}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            );
+                        })}
                 </nav>
 
                 {/* Footer */}

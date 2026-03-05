@@ -11,6 +11,7 @@ import LabNotebook from './pages/LabNotebook';
 import Devices from './pages/Devices';
 import Warehouses from './pages/Warehouses';
 import WarehouseDetail from './pages/WarehouseDetail';
+import UserManagement from './pages/UserManagement';
 import Login from './pages/Login';
 
 // Korumalı route: giriş yapılmamışsa login'e yönlendir
@@ -20,6 +21,13 @@ function ProtectedRoute({ children }) {
   if (loading) return null;
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
+  return children;
+}
+
+// Admin korumalı route: admin değilse erişim engellenir
+function AdminRoute({ children }) {
+  const { user } = useAuth();
+  if (!user || user.role !== 'Admin') return <div className="p-8 text-center text-muted-foreground">Bu sayfaya erişim yetkiniz yok.</div>;
   return children;
 }
 
@@ -49,6 +57,7 @@ function AppRoutes() {
                 <Route path="/devices" element={<Devices />} />
                 <Route path="/warehouses" element={<Warehouses />} />
                 <Route path="/warehouses/:id" element={<WarehouseDetail />} />
+                <Route path="/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
                 <Route path="*" element={<div>Sayfa bulunamadı</div>} />
               </Routes>
             </Layout>

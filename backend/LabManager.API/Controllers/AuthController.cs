@@ -27,14 +27,21 @@ public class AuthController : ControllerBase
             return BadRequest(ApiResponse<LoginResponseDto>.ErrorResponse("Geçersiz veri"));
         }
 
-        var response = await _authService.LoginAsync(dto);
-
-        if (response == null)
+        try
         {
-            return Unauthorized(ApiResponse<LoginResponseDto>.ErrorResponse("Kullanıcı adı veya şifre hatalı"));
-        }
+            var response = await _authService.LoginAsync(dto);
 
-        return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(response, "Giriş başarılı"));
+            if (response == null)
+            {
+                return Unauthorized(ApiResponse<LoginResponseDto>.ErrorResponse("Kullanıcı adı veya şifre hatalı"));
+            }
+
+            return Ok(ApiResponse<LoginResponseDto>.SuccessResponse(response, "Giriş başarılı"));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(ApiResponse<LoginResponseDto>.ErrorResponse(ex.Message));
+        }
     }
 
     /// <summary>
@@ -55,7 +62,7 @@ public class AuthController : ControllerBase
             return BadRequest(ApiResponse<string>.ErrorResponse("Kullanıcı adı veya email zaten kullanılıyor"));
         }
 
-        return Ok(ApiResponse<string>.SuccessResponse("Kullanıcı başarıyla oluşturuldu", "Kayıt başarılı"));
+        return Ok(ApiResponse<string>.SuccessResponse("Hesabınız oluşturuldu! Yönetici onayından sonra giriş yapabilirsiniz.", "Kayıt başarılı"));
     }
 }
 

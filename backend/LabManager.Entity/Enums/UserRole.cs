@@ -4,6 +4,7 @@ public enum UserRole
 {
     Admin = 1,
     Researcher = 2,
-    Viewer = 3
+    Viewer = 3,
+    Student = 4
 }
 
