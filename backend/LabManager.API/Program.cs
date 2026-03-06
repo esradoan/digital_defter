@@ -110,6 +110,19 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+var uploadsDir = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+if (!Directory.Exists(uploadsDir))
+{
+    Directory.CreateDirectory(uploadsDir);
+}
+
+app.UseStaticFiles(); // Bu, default wwwroot içindekiler için (eğer varsa)
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsDir),
+    RequestPath = "/uploads"
+});
+
 app.UseCors("AllowFrontend");
 
 app.UseAuthentication();

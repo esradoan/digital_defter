@@ -84,6 +84,45 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
   }
+
+  /* ===== Lilac Mode ===== */
+  [data-theme="lilac"] {
+    --background: 270 50% 98%;
+    --foreground: 270 40% 15%;
+    --card: 270 40% 97%;
+    --card-foreground: 270 40% 15%;
+    --popover: 270 40% 97%;
+    --popover-foreground: 270 40% 15%;
+    --primary: 270 60% 65%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 270 30% 90%;
+    --secondary-foreground: 270 40% 15%;
+    --muted: 270 30% 90%;
+    --muted-foreground: 270 15% 45%;
+    --accent: 270 30% 90%;
+    --accent-foreground: 270 40% 15%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 270 20% 88%;
+    --input: 270 20% 88%;
+    --ring: 270 60% 65%;
+
+    /* Custom app tokens */
+    --primary-dark: #8b5cf6;
+    --bg-dark: #faf5ff;
+    --bg-card: #f3e8ff;
+    --text-main: #4c1d95;
+    --text-muted: #8b5cf6;
+    --border-color: #e9d5ff;
+    --hover-bg: rgba(139, 92, 246, 0.1);
+
+    /* chart */
+    --chart-1: 270 60% 65%;
+    --chart-2: 280 60% 65%;
+    --chart-3: 290 60% 65%;
+    --chart-4: 260 60% 65%;
+    --chart-5: 250 60% 65%;
+  }
 }
 
 /* ===== Base Styles ===== */

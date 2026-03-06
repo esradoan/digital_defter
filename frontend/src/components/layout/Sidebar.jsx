@@ -14,7 +14,6 @@ import {
 export default function Sidebar() {
     const location = useLocation();
     const navigate = useNavigate();
-    const { theme, toggleTheme } = useTheme();
     const { user, logout } = useAuth();
 
     const menuItems = [
@@ -83,8 +82,12 @@ export default function Sidebar() {
                     {/* Kullanıcı bilgisi */}
                     {user && (
                         <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                                <User size={16} className="text-primary" />
+                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/20">
+                                {user.profileImageUrl ? (
+                                    <img src={`http://localhost:5274${user.profileImageUrl}`} alt="User" className="w-full h-full object-cover" />
+                                ) : (
+                                    <User size={16} className="text-primary" />
+                                )}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium text-foreground truncate">{user.fullName}</p>
@@ -93,14 +96,6 @@ export default function Sidebar() {
                         </div>
                     )}
 
-                    <Button
-                        variant="ghost"
-                        onClick={toggleTheme}
-                        className="w-full justify-start gap-3 h-11 text-muted-foreground hover:text-foreground hover:bg-accent"
-                    >
-                        {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
-                        <span>{theme === 'dark' ? 'Aydınlık Mod' : 'Karanlık Mod'}</span>
-                    </Button>
                     <Button
                         variant="ghost"
                         onClick={handleLogout}

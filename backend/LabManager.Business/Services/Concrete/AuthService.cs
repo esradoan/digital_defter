@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using LabManager.Business.DTOs.Auth;
@@ -54,7 +55,8 @@ public class AuthService : IAuthService
             Username = user.Username,
             Email = user.Email,
             FullName = user.FullName,
-            Role = user.Role.ToString()
+            Role = user.Role.ToString(),
+            ProfileImageUrl = user.ProfileImageUrl
         };
     }
 
@@ -108,6 +110,75 @@ public class AuthService : IAuthService
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public async Task<bool> UpdateProfileAsync(int userId, UpdateProfileDto dto)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null) return false;
+
+        // E-posta başkası tarafından kullanılıyor mu kontrol et
+        var emailExists = await _userRepository.ExistsAsync(u => u.Email == dto.Email && u.Id != userId);
+        if (emailExists) return false;
+
+        user.FullName = dto.FullName;
+        user.Email = dto.Email;
+        await _userRepository.UpdateAsync(user);
+        return true;
+    }
+
+    public async Task<bool> ChangePasswordAsync(int userId, ChangePasswordDto dto)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null) return false;
+
+        // Eski şifre doğru mu?
+        if (!BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.PasswordHash))
+            return false;
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+        await _userRepository.UpdateAsync(user);
+        return true;
+    }
+
+    public async Task<string?> UploadProfilePictureAsync(int userId, Stream fileStream, string fileName)
+    {
+        var user = await _userRepository.GetByIdAsync(userId);
+        if (user == null) return null;
+
+        if (fileStream == null || fileStream.Length == 0) return null;
+
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "profiles");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        // Eski PP varsa sil
+        if (!string.IsNullOrEmpty(user.ProfileImageUrl))
+        {
+            var oldFileName = Path.GetFileName(user.ProfileImageUrl);
+            var oldFilePath = Path.Combine(uploadsFolder, oldFileName);
+            if (File.Exists(oldFilePath))
+            {
+                File.Delete(oldFilePath);
+            }
+        }
+
+        // Yeni PP oluştur
+        var fileExtension = Path.GetExtension(fileName);
+        var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        using (var destStream = new FileStream(filePath, FileMode.Create))
+        {
+            await fileStream.CopyToAsync(destStream);
+        }
+
+        user.ProfileImageUrl = $"/uploads/profiles/{uniqueFileName}";
+        await _userRepository.UpdateAsync(user);
+
+        return user.ProfileImageUrl;
     }
 }
 

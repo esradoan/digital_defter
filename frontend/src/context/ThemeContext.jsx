@@ -14,12 +14,18 @@ export function ThemeProvider({ children }) {
         document.documentElement.setAttribute('data-theme', theme);
     }, [theme]);
 
+    // Yeni tema değiştirme fonksiyonu (toggle yerine direkt set)
+    const changeTheme = (newTheme) => {
+        setTheme(newTheme);
+    };
+
+    // toggleTheme geriye dönük uyumluluk için, sadece dark/light arası gidip gelir (isteğe bağlı ama lila varken artık setTheme kullanılmalı)
     const toggleTheme = () => {
         setTheme(prev => prev === 'dark' ? 'light' : 'dark');
     };
 
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <ThemeContext.Provider value={{ theme, setTheme: changeTheme, toggleTheme }}>
             {children}
         </ThemeContext.Provider>
     );

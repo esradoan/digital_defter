@@ -11,6 +11,7 @@ public class User : BaseEntity
     public string FullName { get; set; } = string.Empty;
     public bool IsApproved { get; set; } = false;
     public DateTime? LastLogin { get; set; }
+    public string? ProfileImageUrl { get; set; }
     public ICollection<LabNote> LabNotes { get; set; } = new List<LabNote>();
 }
 

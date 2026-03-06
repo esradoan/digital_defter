@@ -11,7 +11,8 @@ const authService = {
                 username: data.username,
                 email: data.email,
                 fullName: data.fullName,
-                role: data.role
+                role: data.role,
+                profileImageUrl: data.profileImageUrl
             }));
         }
 
@@ -40,7 +41,26 @@ const authService = {
         return user ? JSON.parse(user) : null;
     },
 
-    isAuthenticated: () => !!localStorage.getItem('token')
+    isAuthenticated: () => !!localStorage.getItem('token'),
+
+    updateProfile: async (fullName, email) => {
+        const response = await api.put('/auth/profile', { fullName, email });
+        return response.data;
+    },
+
+    changePassword: async (currentPassword, newPassword) => {
+        const response = await api.put('/auth/password', { currentPassword, newPassword });
+        return response.data;
+    },
+
+    uploadProfilePicture: async (file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await api.post('/auth/profile-picture', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data.data || response.data;
+    }
 };
 
 export default authService;

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LabManager.Business.DTOs.LabNote;
@@ -101,5 +102,35 @@ public class LabNotesController : ControllerBase
             return NotFound(ApiResponse<bool>.ErrorResponse("Not bulunamadı veya yetkiniz yok"));
 
         return Ok(ApiResponse<bool>.SuccessResponse(true, "Not başarıyla silindi"));
+    }
+
+    /// <summary>
+    /// Kullanıcının notlarını CSV olarak dışa aktar
+    /// </summary>
+    [HttpGet("export/csv")]
+    public async Task<IActionResult> ExportToCsv()
+    {
+        var userId = GetUserId();
+        var notes = await _labNoteService.GetUserNotesAsync(userId, null, "desc");
+
+        var builder = new StringBuilder();
+        builder.AppendLine("Tarih,Not(İçerik),Deney No,Deney Adı");
+
+        foreach (var note in notes)
+        {
+            var date = note.CreatedAt.ToString("yyyy-MM-dd HH:mm");
+            
+            // CSV'de hücre içindeki virgülleri ve yeni satırları korumak için text alanını çift tırnak içine alıyoruz
+            var text = note.Content?.Replace("\"", "\"\"") ?? "";
+            text = $"\"{text}\"";
+
+            var expNum = note.ExperimentNumber ?? "";
+            var expName = note.ExperimentName ?? "";
+
+            builder.AppendLine($"{date},{text},{expNum},{expName}");
+        }
+
+        var bytes = Encoding.UTF8.GetBytes(builder.ToString());
+        return File(bytes, "text/csv", $"LabNotes_Export_{DateTime.Now:yyyyMMdd}.csv");
     }
 }

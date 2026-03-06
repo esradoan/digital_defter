@@ -32,6 +32,18 @@ const labNoteService = {
     delete: async (id) => {
         const response = await api.delete(`/labnotes/${id}`);
         return response.data;
+    },
+
+    exportToCsv: async () => {
+        const response = await api.get('/labnotes/export/csv', { responseType: 'blob' });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        link.setAttribute('download', `LabNotes_Export_${dateStr}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
     }
 };
 

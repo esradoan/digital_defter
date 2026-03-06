@@ -12,6 +12,7 @@ import Devices from './pages/Devices';
 import Warehouses from './pages/Warehouses';
 import WarehouseDetail from './pages/WarehouseDetail';
 import UserManagement from './pages/UserManagement';
+import Settings from './pages/Settings';
 import Login from './pages/Login';
 
 // Korumalı route: giriş yapılmamışsa login'e yönlendir
@@ -58,6 +59,7 @@ function AppRoutes() {
                 <Route path="/warehouses" element={<Warehouses />} />
                 <Route path="/warehouses/:id" element={<WarehouseDetail />} />
                 <Route path="/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="*" element={<div>Sayfa bulunamadı</div>} />
               </Routes>
             </Layout>
