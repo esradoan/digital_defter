@@ -33,6 +33,7 @@ public class DeviceService : IDeviceService
             DeviceCategoryId = d.DeviceCategoryId,
             CategoryName = d.DeviceCategoryId.HasValue && categoryDict.ContainsKey(d.DeviceCategoryId.Value)
                 ? categoryDict[d.DeviceCategoryId.Value] : null,
+            ManualFileUrl = d.ManualFileUrl,
             CreatedAt = d.CreatedAt
         }).OrderByDescending(d => d.CreatedAt);
     }
@@ -44,7 +45,8 @@ public class DeviceService : IDeviceService
             Name = dto.Name,
             BrandModel = dto.BrandModel,
             Description = dto.Description,
-            DeviceCategoryId = dto.DeviceCategoryId
+            DeviceCategoryId = dto.DeviceCategoryId,
+            ManualFileUrl = dto.ManualFileUrl
         };
 
         var created = await _deviceRepository.AddAsync(device);
@@ -64,6 +66,7 @@ public class DeviceService : IDeviceService
             Description = created.Description,
             DeviceCategoryId = created.DeviceCategoryId,
             CategoryName = categoryName,
+            ManualFileUrl = created.ManualFileUrl,
             CreatedAt = created.CreatedAt
         };
     }
@@ -77,6 +80,8 @@ public class DeviceService : IDeviceService
         device.BrandModel = dto.BrandModel;
         device.Description = dto.Description;
         device.DeviceCategoryId = dto.DeviceCategoryId;
+        if (dto.ManualFileUrl != null) 
+            device.ManualFileUrl = dto.ManualFileUrl;
 
         await _deviceRepository.UpdateAsync(device);
 
@@ -95,8 +100,49 @@ public class DeviceService : IDeviceService
             Description = device.Description,
             DeviceCategoryId = device.DeviceCategoryId,
             CategoryName = categoryName,
+            ManualFileUrl = device.ManualFileUrl,
             CreatedAt = device.CreatedAt
         };
+    }
+
+    public async Task<string?> UploadManualAsync(int deviceId, Stream fileStream, string fileName)
+    {
+        var device = await _deviceRepository.GetByIdAsync(deviceId);
+        if (device == null) return null;
+
+        if (fileStream == null || fileStream.Length == 0) return null;
+
+        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", "devices");
+        if (!Directory.Exists(uploadsFolder))
+        {
+            Directory.CreateDirectory(uploadsFolder);
+        }
+
+        // Eski PDF varsa sil
+        if (!string.IsNullOrEmpty(device.ManualFileUrl))
+        {
+            var oldFileName = Path.GetFileName(device.ManualFileUrl);
+            var oldFilePath = Path.Combine(uploadsFolder, oldFileName);
+            if (File.Exists(oldFilePath))
+            {
+                File.Delete(oldFilePath);
+            }
+        }
+
+        // Yeni PDF oluştur
+        var fileExtension = Path.GetExtension(fileName);
+        var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
+        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+        using (var destStream = new FileStream(filePath, FileMode.Create))
+        {
+            await fileStream.CopyToAsync(destStream);
+        }
+
+        device.ManualFileUrl = $"/uploads/devices/{uniqueFileName}";
+        await _deviceRepository.UpdateAsync(device);
+
+        return device.ManualFileUrl;
     }
 
     public async Task DeleteAsync(int id)

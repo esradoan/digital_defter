@@ -21,6 +21,15 @@ const deviceService = {
         return response.data;
     },
 
+    uploadManual: async (id, file) => {
+        const formData = new FormData();
+        formData.append('file', file);
+        const response = await api.post(`/devices/${id}/manual`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        return response.data;
+    },
+
     // Kategori işlemleri
     getCategories: async () => {
         const response = await api.get('/devices/categories');

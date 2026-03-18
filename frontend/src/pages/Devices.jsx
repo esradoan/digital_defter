@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Monitor, Plus, Trash, Trash2, Edit2, FolderPlus, ChevronDown, ChevronRight, Layers, Cpu, Search } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Monitor, Plus, Trash, Trash2, Edit2, FolderPlus, ChevronDown, ChevronRight, Layers, Cpu, Search, FileText, Upload } from 'lucide-react';
 import deviceService from '../services/deviceService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -21,6 +21,8 @@ export default function Devices() {
     const [editingDevice, setEditingDevice] = useState(null);
     const [deviceForm, setDeviceForm] = useState({ name: '', brandModel: '', description: '', categoryId: '' });
     const [saving, setSaving] = useState(false);
+    const [selectedPdf, setSelectedPdf] = useState(null);
+    const fileInputRef = useRef(null);
 
     // Kategori dialog
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -48,6 +50,8 @@ export default function Devices() {
     const openAddDialog = () => {
         setEditingDevice(null);
         setDeviceForm({ name: '', brandModel: '', description: '', categoryId: '' });
+        setSelectedPdf(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         setIsDeviceOpen(true);
     };
 
@@ -59,6 +63,8 @@ export default function Devices() {
             description: device.description || '',
             categoryId: device.deviceCategoryId ? String(device.deviceCategoryId) : ''
         });
+        setSelectedPdf(null);
+        if (fileInputRef.current) fileInputRef.current.value = '';
         setIsDeviceOpen(true);
     };
 
@@ -75,14 +81,23 @@ export default function Devices() {
                 deviceCategoryId: deviceForm.categoryId ? parseInt(deviceForm.categoryId) : null
             };
 
+            let targetId = editingDevice?.id;
+
             if (editingDevice) {
                 await deviceService.update(editingDevice.id, data);
             } else {
-                await deviceService.create(data);
+                const newDevice = await deviceService.create(data);
+                targetId = newDevice.data?.id || newDevice.id; // fallback if data is nested
+            }
+
+            // PDF seçiliyse yükle
+            if (selectedPdf && targetId) {
+                await deviceService.uploadManual(targetId, selectedPdf);
             }
 
             setIsDeviceOpen(false);
             setDeviceForm({ name: '', brandModel: '', description: '', categoryId: '' });
+            setSelectedPdf(null);
             setEditingDevice(null);
             fetchData();
         } catch (err) {
@@ -157,7 +172,7 @@ export default function Devices() {
                 {device.description && (
                     <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{device.description}</p>
                 )}
-                <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground">
+                <div className="flex gap-3 mt-1.5 text-xs text-muted-foreground items-center">
                     {device.categoryName && (
                         <>
                             <span>{device.categoryName}</span>
@@ -165,6 +180,21 @@ export default function Devices() {
                         </>
                     )}
                     <span>{new Date(device.createdAt).toLocaleDateString('tr-TR')}</span>
+
+                    {device.manualFileUrl && (
+                        <>
+                            <span>•</span>
+                            <a
+                                href={`http://localhost:5274${device.manualFileUrl}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-1 text-primary hover:underline font-medium"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <FileText size={14} /> PDF Kılavuz
+                            </a>
+                        </>
+                    )}
                 </div>
             </div>
             <div className="flex gap-1 flex-shrink-0">
@@ -382,6 +412,25 @@ export default function Devices() {
                                 rows={3}
                                 className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                             />
+                        </div>
+
+                        {/* PDF Yükleme */}
+                        <div>
+                            <label className="block text-sm text-muted-foreground mb-2">Kullanım Kılavuzu (PDF)</label>
+                            <div className="flex items-center gap-2">
+                                <Input
+                                    type="file"
+                                    accept="application/pdf"
+                                    ref={fileInputRef}
+                                    onChange={(e) => setSelectedPdf(e.target.files?.[0])}
+                                    className="cursor-pointer"
+                                />
+                                {editingDevice && editingDevice.manualFileUrl && !selectedPdf && (
+                                    <Badge variant="outline" className="shrink-0 flex items-center gap-1 bg-primary/5 text-primary">
+                                        <FileText size={12} /> Mevcut PDF
+                                    </Badge>
+                                )}
+                            </div>
                         </div>
 
                         <Button type="submit" className="w-full" disabled={!deviceForm.name.trim() || saving}>

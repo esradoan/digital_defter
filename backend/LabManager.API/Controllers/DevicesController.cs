@@ -65,6 +65,28 @@ public class DevicesController : ControllerBase
         }
     }
 
+    [HttpPost("{id}/manual")]
+    public async Task<ActionResult<ApiResponse<string>>> UploadManual(int id, Microsoft.AspNetCore.Http.IFormFile file)
+    {
+        try
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest(ApiResponse<string>.ErrorResponse("Dosya seçilmedi."));
+
+            using var stream = file.OpenReadStream();
+            var manualUrl = await _deviceService.UploadManualAsync(id, stream, file.FileName);
+
+            if (manualUrl == null)
+                return NotFound(ApiResponse<string>.ErrorResponse("Cihaz bulunamadı veya dosya yüklenemedi."));
+
+            return Ok(ApiResponse<string>.SuccessResponse(manualUrl, "Kullanım kılavuzu başarıyla yüklendi"));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<string>.ErrorResponse(ex.Message));
+        }
+    }
+
     // === Kategori Endpoint'leri ===
 
     [HttpGet("categories")]

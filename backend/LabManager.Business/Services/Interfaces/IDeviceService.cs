@@ -8,6 +8,7 @@ public interface IDeviceService
     Task<DeviceDto> CreateAsync(CreateDeviceDto dto);
     Task<DeviceDto> UpdateAsync(int id, CreateDeviceDto dto);
     Task DeleteAsync(int id);
+    Task<string?> UploadManualAsync(int deviceId, Stream fileStream, string fileName);
 
     // Kategori işlemleri
     Task<IEnumerable<DeviceCategoryDto>> GetCategoriesAsync();

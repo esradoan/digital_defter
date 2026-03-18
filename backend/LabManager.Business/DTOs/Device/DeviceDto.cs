@@ -8,6 +8,7 @@ public class DeviceDto
     public string? Description { get; set; }
     public int? DeviceCategoryId { get; set; }
     public string? CategoryName { get; set; }
+    public string? ManualFileUrl { get; set; }
     public DateTime CreatedAt { get; set; }
 }
 
@@ -17,6 +18,7 @@ public class CreateDeviceDto
     public string? BrandModel { get; set; }
     public string? Description { get; set; }
     public int? DeviceCategoryId { get; set; }
+    public string? ManualFileUrl { get; set; }
 }
 
 public class DeviceCategoryDto
