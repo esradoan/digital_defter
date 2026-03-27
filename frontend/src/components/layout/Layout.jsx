@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { matchPath, useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './Sidebar';
@@ -30,18 +30,39 @@ function getPageTitle(pathname) {
 export default function Layout({ children }) {
     const location = useLocation();
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+    const [isMobileViewport, setIsMobileViewport] = useState(() => {
+        if (typeof window === 'undefined') return false;
+        return window.innerWidth < 768;
+    });
 
     const pageTitle = useMemo(() => getPageTitle(location.pathname), [location.pathname]);
+
+    useEffect(() => {
+        const mediaQuery = window.matchMedia('(max-width: 767px)');
+        const handleViewportChange = (event) => {
+            setIsMobileViewport(event.matches);
+            if (!event.matches) {
+                setIsMobileNavOpen(false);
+            }
+        };
+
+        setIsMobileViewport(mediaQuery.matches);
+        mediaQuery.addEventListener('change', handleViewportChange);
+
+        return () => mediaQuery.removeEventListener('change', handleViewportChange);
+    }, []);
 
     return (
         <div className="min-h-screen bg-background">
             <Sidebar />
 
-            <Dialog open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
-                <DialogContent className="left-0 top-0 h-dvh max-h-dvh w-[280px] max-w-[85vw] translate-x-0 translate-y-0 rounded-none border-r border-border bg-card p-0 data-[state=closed]:slide-out-to-left data-[state=closed]:slide-out-to-top-0 data-[state=open]:slide-in-from-left data-[state=open]:slide-in-from-top-0 md:hidden">
-                    <Sidebar mobile onNavigate={() => setIsMobileNavOpen(false)} />
-                </DialogContent>
-            </Dialog>
+            {isMobileViewport && (
+                <Dialog open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
+                    <DialogContent className="left-0 top-0 h-dvh max-h-dvh w-[280px] max-w-[85vw] translate-x-0 translate-y-0 rounded-none border-r border-border bg-card p-0 data-[state=closed]:slide-out-to-left data-[state=closed]:slide-out-to-top-0 data-[state=open]:slide-in-from-left data-[state=open]:slide-in-from-top-0 md:hidden">
+                        <Sidebar mobile onNavigate={() => setIsMobileNavOpen(false)} />
+                    </DialogContent>
+                </Dialog>
+            )}
 
             <div className="min-h-screen md:ml-sidebar">
                 <header className="sticky top-0 z-30 border-b border-border bg-background/95 backdrop-blur md:hidden">

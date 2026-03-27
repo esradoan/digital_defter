@@ -57,18 +57,20 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                             );
 
                         return (
-                            <Link key={item.path} to={item.path} onClick={() => onNavigate?.()}>
-                                <Button
-                                    variant={isActive ? 'default' : 'ghost'}
-                                    className={`h-11 w-full justify-start gap-3 text-[15px] ${isActive
-                                        ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
-                                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                                        }`}
-                                >
+                            <Button
+                                key={item.path}
+                                asChild
+                                variant={isActive ? 'default' : 'ghost'}
+                                className={`h-11 w-full justify-start gap-3 text-[15px] ${isActive
+                                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                                    }`}
+                            >
+                                <Link to={item.path} onClick={() => onNavigate?.()}>
                                     <item.icon size={20} />
                                     <span>{item.label}</span>
-                                </Button>
-                            </Link>
+                                </Link>
+                            </Button>
                         );
                     })}
             </nav>
