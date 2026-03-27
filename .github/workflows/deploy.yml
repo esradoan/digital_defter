@@ -1,0 +1,39 @@
+name: Manual Deploy LabManager
+
+on:
+  workflow_dispatch: # Bu satır "Sadece ben istediğimde çalıştır" demektir.
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '9.0.x'
+
+    - name: Publish Application
+      # API projesinin yolunu kontrol et, gerekirse klasör adını düzelt
+      run: dotnet publish LabManager.API/LabManager.API.csproj -c Release -o ./publish
+
+    - name: Copy files via SCP
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "./publish/*"
+        target: "/var/www/labmanager"
+        strip_components: 1
+
+    - name: Restart Application Service
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          sudo systemctl restart labmanager.service
+          echo "Dağıtım başarıyla tamamlandı ve servis yeniden başlatıldı!"
