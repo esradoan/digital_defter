@@ -130,21 +130,21 @@ export default function LabNotebook() {
     return (
         <div>
             {/* Header */}
-            <div className="flex items-center justify-between mb-8">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground">Lab Defteri</h1>
+                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Lab Defteri</h1>
                     <p className="text-muted-foreground mt-1">Kişisel laboratuvar notlarınız</p>
                 </div>
-                <Button onClick={() => setIsNewNoteOpen(true)} className="gap-2">
+                <Button onClick={() => setIsNewNoteOpen(true)} className="w-full gap-2 sm:w-auto">
                     <Plus size={16} /> Yeni Not
                 </Button>
             </div>
 
             {/* İçerik: Sol Liste + Sağ Detay */}
-            <div className="flex gap-6" style={{ minHeight: 'calc(100vh - 220px)' }}>
+            <div className="flex flex-col gap-6 lg:flex-row">
 
                 {/* Sol Panel: Not Listesi */}
-                <div className="w-80 flex-shrink-0 flex flex-col gap-3">
+                <div className="flex w-full flex-shrink-0 flex-col gap-3 lg:w-80">
                     {/* Arama ve Filtreler */}
                     <div className="relative">
                         <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -155,7 +155,7 @@ export default function LabNotebook() {
                             className="pl-9"
                         />
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row">
                         <Select value={monthFilter} onValueChange={setMonthFilter}>
                             <SelectTrigger className="flex-1 text-xs">
                                 <SelectValue placeholder="Ay Seçimi" />
@@ -238,11 +238,11 @@ export default function LabNotebook() {
                 {/* Sağ Panel: Not Detayı / Düzenleme */}
                 <div className="flex-1">
                     {selectedNote ? (
-                        <Card className="h-full">
-                            <CardContent className="p-6 h-full flex flex-col">
+                        <Card className="h-full min-h-[420px]">
+                            <CardContent className="flex h-full flex-col p-4 sm:p-6">
                                 {/* Üst Toolbar */}
-                                <div className="flex items-center justify-between mb-4 pb-4 border-b border-border">
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <div className="mb-4 flex flex-col gap-3 border-b border-border pb-4 sm:flex-row sm:items-center sm:justify-between">
+                                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
                                         <Clock size={13} />
                                         <span>Oluşturulma: {formatDate(selectedNote.createdAt)}</span>
                                         {selectedNote.updatedAt && (
@@ -252,7 +252,7 @@ export default function LabNotebook() {
                                             </>
                                         )}
                                     </div>
-                                    <div className="flex gap-1.5">
+                                    <div className="flex flex-col gap-1.5 sm:flex-row">
                                         {isEditing ? (
                                             <>
                                                 <Button
@@ -306,7 +306,7 @@ export default function LabNotebook() {
                                                 placeholder="Not başlığı"
                                             />
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <div>
                                                 <label className="block text-sm text-muted-foreground mb-2">Deney No</label>
                                                 <Input
@@ -339,13 +339,13 @@ export default function LabNotebook() {
                                     <div className="flex-1">
                                         <h2 className="text-xl font-semibold text-foreground mb-4">{selectedNote.title}</h2>
                                         {(selectedNote.experimentNumber || selectedNote.experimentName) && (
-                                            <div className="flex items-center gap-3 mb-6 p-4 bg-muted/50 rounded-xl border border-border/50">
+                                            <div className="mb-6 flex flex-col gap-3 rounded-xl border border-border/50 bg-muted/50 p-4 sm:flex-row sm:items-center">
                                                 <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                                                     <FileText size={18} />
                                                 </div>
                                                 <div>
                                                     <div className="text-xs font-medium text-muted-foreground mb-0.5">Deney Bilgisi</div>
-                                                    <div className="text-sm font-medium text-foreground flex items-center gap-2">
+                                                    <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-foreground">
                                                         {selectedNote.experimentNumber && (
                                                             <span className="text-primary font-semibold">#{selectedNote.experimentNumber}</span>
                                                         )}
@@ -367,7 +367,7 @@ export default function LabNotebook() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <Card className="h-full">
+                        <Card className="h-full min-h-[320px]">
                             <CardContent className="flex flex-col items-center justify-center h-full py-24 text-center">
                                 <FileText size={48} className="text-muted-foreground/30 mb-4" />
                                 <h3 className="text-lg font-medium text-muted-foreground/70 mb-1">Bir not seçin</h3>
@@ -400,7 +400,7 @@ export default function LabNotebook() {
                                 required
                             />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <label className="block text-sm text-muted-foreground mb-2">Deney No</label>
                                 <Input

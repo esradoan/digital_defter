@@ -136,12 +136,12 @@ export default function Products() {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-6">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground">Ürünler</h1>
+                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Ürünler</h1>
                     <p className="text-muted-foreground mt-1">Materyal ve envanter (Master Data) yönetim merkezi.</p>
                 </div>
-                <Button onClick={handleCreateClick} className="gap-2 shadow-md shadow-primary/20">
+                <Button onClick={handleCreateClick} className="w-full gap-2 shadow-md shadow-primary/20 sm:w-auto">
                     <Plus size={20} /> Yeni Ürün Ekle
                 </Button>
             </div>
@@ -158,7 +158,7 @@ export default function Products() {
 
             <Card className="border-border">
                 <CardContent className="p-0">
-                    <Table>
+                    <Table className="min-w-[760px]">
                         <TableHeader>
                             <TableRow className="bg-muted/30 hover:bg-muted/30">
                                 <TableHead className="text-muted-foreground font-semibold">Ürün Adı</TableHead>
@@ -305,7 +305,7 @@ export default function Products() {
                             </Select>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <label className="block text-sm text-muted-foreground mb-2">Katalog No</label>
                                 <Input

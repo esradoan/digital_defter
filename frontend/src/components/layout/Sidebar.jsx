@@ -1,17 +1,11 @@
-import { Home, Box, Database, Settings, LogOut, Sun, Moon, FileText, User, BookOpen, Monitor, Warehouse as WarehouseIcon, Users } from 'lucide-react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useTheme } from '../../context/ThemeContext';
+import { Home, Box, Database, Settings, LogOut, FileText, User, BookOpen, Monitor, Warehouse as WarehouseIcon, Users } from 'lucide-react';
+import { Link, matchPath, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
-export default function Sidebar() {
+export default function Sidebar({ mobile = false, onNavigate }) {
     const location = useLocation();
     const navigate = useNavigate();
     const { user, logout } = useAuth();
@@ -30,83 +24,83 @@ export default function Sidebar() {
 
     const handleLogout = () => {
         logout();
+        onNavigate?.();
         navigate('/login');
     };
 
     return (
-        <TooltipProvider>
-            <div className="w-sidebar bg-card border-r border-border flex flex-col h-screen fixed left-0 top-0 transition-colors duration-300">
-                {/* Header */}
-                <div className="p-6">
-                    <h2 className="text-xl font-bold text-primary m-0 flex items-center gap-2">
-                        🧪 LabManager
-                    </h2>
-                </div>
-
-                <Separator />
-
-                {/* Navigation */}
-                <nav className="flex-1 p-3 flex flex-col gap-1 mt-2">
-                    {menuItems
-                        .filter(item => !item.adminOnly || (user && user.role === 'Admin'))
-                        .map((item) => {
-                            const isActive = location.pathname === item.path;
-                            return (
-                                <Tooltip key={item.path}>
-                                    <TooltipTrigger asChild>
-                                        <Link to={item.path}>
-                                            <Button
-                                                variant={isActive ? 'default' : 'ghost'}
-                                                className={`w-full justify-start gap-3 h-11 text-[15px] ${isActive
-                                                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
-                                                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
-                                                    }`}
-                                            >
-                                                <item.icon size={20} />
-                                                <span>{item.label}</span>
-                                            </Button>
-                                        </Link>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="right">
-                                        <p>{item.label}</p>
-                                    </TooltipContent>
-                                </Tooltip>
-                            );
-                        })}
-                </nav>
-
-                {/* Footer */}
-                <div className="p-3 space-y-1">
-                    <Separator className="mb-3" />
-
-                    {/* Kullanıcı bilgisi */}
-                    {user && (
-                        <div className="flex items-center gap-3 px-3 py-2 mb-2">
-                            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/20">
-                                {user.profileImageUrl ? (
-                                    <img src={`http://localhost:5274${user.profileImageUrl}`} alt="User" className="w-full h-full object-cover" />
-                                ) : (
-                                    <User size={16} className="text-primary" />
-                                )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-foreground truncate">{user.fullName}</p>
-                                <p className="text-xs text-muted-foreground truncate">{user.username}</p>
-                            </div>
-                        </div>
-                    )}
-
-                    <Button
-                        variant="ghost"
-                        onClick={handleLogout}
-                        className="w-full justify-start gap-3 h-11 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                    >
-                        <LogOut size={20} />
-                        <span>Çıkış Yap</span>
-                    </Button>
-                </div>
+        <aside
+            className={cn(
+                'border-border bg-card transition-colors duration-300',
+                mobile
+                    ? 'flex h-full flex-col'
+                    : 'fixed left-0 top-0 hidden h-screen w-sidebar border-r md:flex'
+            )}
+        >
+            <div className="p-6">
+                <h2 className="m-0 flex items-center gap-2 text-xl font-bold text-primary">
+                    🧪 LabManager
+                </h2>
             </div>
-        </TooltipProvider>
+
+            <Separator />
+
+            <nav className="mt-2 flex flex-1 flex-col gap-1 p-3">
+                {menuItems
+                    .filter(item => !item.adminOnly || (user && user.role === 'Admin'))
+                    .map((item) => {
+                        const isActive = item.path === '/'
+                            ? location.pathname === item.path
+                            : Boolean(
+                                matchPath({ path: item.path, end: true }, location.pathname) ||
+                                matchPath({ path: `${item.path}/*`, end: false }, location.pathname)
+                            );
+
+                        return (
+                            <Link key={item.path} to={item.path} onClick={() => onNavigate?.()}>
+                                <Button
+                                    variant={isActive ? 'default' : 'ghost'}
+                                    className={`h-11 w-full justify-start gap-3 text-[15px] ${isActive
+                                        ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20'
+                                        : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                                        }`}
+                                >
+                                    <item.icon size={20} />
+                                    <span>{item.label}</span>
+                                </Button>
+                            </Link>
+                        );
+                    })}
+            </nav>
+
+            <div className="space-y-1 p-3">
+                <Separator className="mb-3" />
+
+                {user && (
+                    <div className="mb-2 flex items-center gap-3 px-3 py-2">
+                        <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-primary/20 bg-primary/20">
+                            {user.profileImageUrl ? (
+                                <img src={`http://localhost:5274${user.profileImageUrl}`} alt="User" className="h-full w-full object-cover" />
+                            ) : (
+                                <User size={16} className="text-primary" />
+                            )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-foreground">{user.fullName}</p>
+                            <p className="truncate text-xs text-muted-foreground">{user.username}</p>
+                        </div>
+                    </div>
+                )}
+
+                <Button
+                    variant="ghost"
+                    onClick={handleLogout}
+                    className="h-11 w-full justify-start gap-3 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                >
+                    <LogOut size={20} />
+                    <span>Çıkış Yap</span>
+                </Button>
+            </div>
+        </aside>
     );
 }
-

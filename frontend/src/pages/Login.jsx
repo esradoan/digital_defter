@@ -51,19 +51,19 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8 sm:py-12">
             <div className="w-full max-w-md">
                 {/* Logo */}
-                <div className="text-center mb-8">
-                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+                <div className="mb-6 text-center sm:mb-8">
+                    <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 sm:h-16 sm:w-16">
                         <FlaskConical size={32} className="text-primary" />
                     </div>
-                    <h1 className="text-3xl font-bold text-foreground">🧪 LabManager</h1>
+                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">🧪 LabManager</h1>
                     <p className="text-muted-foreground mt-2">Laboratuvar Yönetim Sistemi</p>
                 </div>
 
                 {/* Tab Buttons */}
-                <div className="flex gap-1 bg-muted/30 p-1 rounded-xl mb-6">
+                <div className="mb-6 flex gap-1 rounded-xl bg-muted/30 p-1">
                     <button
                         onClick={() => { setIsLogin(true); setError(''); }}
                         className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${isLogin
@@ -85,7 +85,7 @@ export default function Login() {
                 </div>
 
                 <Card className="border-border">
-                    <CardContent className="pt-6">
+                    <CardContent className="p-5 pt-5 sm:p-6">
                         {/* Error/Success */}
                         {error && (
                             <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
@@ -196,7 +196,7 @@ export default function Login() {
                     </CardContent>
                 </Card>
 
-                <p className="text-center text-xs text-muted-foreground mt-6">
+                <p className="mt-6 text-center text-xs text-muted-foreground">
                     LabManager © 2025 — Laboratuvar Yönetim Sistemi
                 </p>
             </div>

@@ -95,12 +95,12 @@ export default function Warehouses() {
     return (
         <div>
             {/* Header */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground">Depolar</h1>
+                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Depolar</h1>
                     <p className="text-muted-foreground mt-1">Ana stok depolarınızı yönetin</p>
                 </div>
-                <Button onClick={openAddDialog} className="gap-2 shadow-md shadow-primary/20">
+                <Button onClick={openAddDialog} className="w-full gap-2 shadow-md shadow-primary/20 sm:w-auto">
                     <Plus size={20} /> Yeni Depo
                 </Button>
             </div>
@@ -163,7 +163,7 @@ export default function Warehouses() {
                                 {warehouse.description && (
                                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{warehouse.description}</p>
                                 )}
-                                <div className="flex gap-4 text-muted-foreground text-sm">
+                                <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:flex-wrap">
                                     {warehouse.location && (
                                         <div className="flex items-center gap-1.5">
                                             <MapPin size={14} />

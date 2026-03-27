@@ -90,7 +90,7 @@ export default function Settings() {
     return (
         <div className="max-w-6xl mx-auto">
             <div className="mb-6">
-                <h1 className="text-3xl font-bold flex items-center gap-3">
+                <h1 className="flex items-center gap-3 text-2xl font-bold sm:text-3xl">
                     <SettingsIcon className="text-primary" size={28} /> Ayarlar
                 </h1>
                 <p className="text-muted-foreground mt-1">Sistem tercihlerinizi ve hesabınızı yapılandırın.</p>
@@ -202,7 +202,7 @@ export default function Settings() {
                                                 required
                                             />
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <div className="space-y-2">
                                                 <label className="text-sm font-medium leading-none">Yeni Şifre</label>
                                                 <Input
@@ -309,11 +309,11 @@ export default function Settings() {
                                     <CardDescription>Sistemdeki tüm cihaz ve depo/ürün kategorilerini buradan merkezi olarak yönetebilirsiniz.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="bg-muted/30 p-4 rounded-lg flex items-end gap-4 mb-6">
+                                    <div className="mb-6 flex flex-col gap-4 rounded-lg bg-muted/30 p-4 sm:items-end">
                                         <div className="space-y-2">
                                             <Label>Kategori Türü</Label>
                                             <select
-                                                className="flex h-10 w-full md:w-[200px] items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 sm:w-[200px]"
                                                 value={newCat.type}
                                                 onChange={e => setNewCat({ ...newCat, type: e.target.value })}
                                             >
@@ -337,7 +337,7 @@ export default function Settings() {
                                                 onChange={e => setNewCat({ ...newCat, description: e.target.value })}
                                             />
                                         </div>
-                                        <Button onClick={handleCreateCategory} disabled={loading || !newCat.name} className="gap-2">
+                                        <Button onClick={handleCreateCategory} disabled={loading || !newCat.name} className="w-full gap-2 sm:w-auto">
                                             <Plus size={16} /> Ekle
                                         </Button>
                                     </div>

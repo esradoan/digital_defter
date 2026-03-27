@@ -178,17 +178,17 @@ export default function WarehouseDetail() {
     return (
         <div>
             {/* Header */}
-            <div className="flex items-center gap-4 mb-6">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start">
                 <Link to="/warehouses">
                     <Button variant="ghost" size="icon" className="h-10 w-10">
                         <ArrowLeft size={20} />
                     </Button>
                 </Link>
                 <div className="flex-1">
-                    <h1 className="text-3xl font-bold text-foreground">{warehouseName}</h1>
-                    <p className="text-muted-foreground mt-1">Stok envanterini yönetin • {items.length} ürün</p>
+                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{warehouseName}</h1>
+                    <p className="mt-1 text-sm text-muted-foreground sm:text-base">Stok envanterini yönetin • {items.length} ürün</p>
                 </div>
-                <Button onClick={openAddItem} className="gap-2">
+                <Button onClick={openAddItem} className="w-full gap-2 sm:w-auto">
                     <Plus size={16} /> Ürün Ekle
                 </Button>
             </div>
@@ -200,11 +200,11 @@ export default function WarehouseDetail() {
             </div>
 
             {/* Kategori Başlığı */}
-            <div className="flex items-center gap-3 mb-5">
+            <div className="mb-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
                 <Layers size={20} className="text-primary" />
                 <h2 className="text-lg font-semibold text-foreground m-0">Stok Kategorileri</h2>
-                <span className="text-sm text-muted-foreground flex-1">— Kategoriye tıklayarak ürünleri görüntüleyin</span>
-                <Button variant="outline" size="sm" onClick={() => setIsCatOpen(true)} className="gap-1.5">
+                <span className="flex-1 text-sm text-muted-foreground">— Kategoriye tıklayarak ürünleri görüntüleyin</span>
+                <Button variant="outline" size="sm" onClick={() => setIsCatOpen(true)} className="w-full gap-1.5 sm:w-auto">
                     <FolderPlus size={15} /> Kategori Ekle
                 </Button>
             </div>
@@ -300,7 +300,7 @@ export default function WarehouseDetail() {
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                             <div>
                                 <label className="block text-sm text-muted-foreground mb-2">Miktar *</label>
                                 <Input type="number" step="0.01" min="0" value={itemForm.quantity} onChange={e => setItemForm({ ...itemForm, quantity: e.target.value })} placeholder="0" required />

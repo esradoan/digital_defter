@@ -225,12 +225,12 @@ export default function Devices() {
     return (
         <div>
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold text-foreground">Cihazlar</h1>
+                    <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Cihazlar</h1>
                     <p className="text-muted-foreground mt-1">Laboratuvar cihazlarınızı yönetin</p>
                 </div>
-                <Button onClick={openAddDialog} className="gap-2">
+                <Button onClick={openAddDialog} className="w-full gap-2 sm:w-auto">
                     <Plus size={16} /> Cihaz Ekle
                 </Button>
             </div>
@@ -247,15 +247,15 @@ export default function Devices() {
             </div>
 
             {/* Section Title */}
-            <div className="flex items-center gap-3 mb-5">
+            <div className="mb-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
                 <Layers size={20} className="text-primary" />
                 <h2 className="text-lg font-semibold text-foreground m-0">Kategori Bölmeleri</h2>
-                <span className="text-sm text-muted-foreground flex-1">— Kategoriye tıklayarak cihazları görüntüleyin</span>
+                <span className="flex-1 text-sm text-muted-foreground">— Kategoriye tıklayarak cihazları görüntüleyin</span>
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setIsCategoryOpen(true)}
-                    className="gap-1.5"
+                    className="w-full gap-1.5 sm:w-auto"
                 >
                     <FolderPlus size={15} /> Kategori Ekle
                 </Button>

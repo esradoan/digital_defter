@@ -57,7 +57,7 @@ export default function UserManagement() {
     return (
         <div>
             <div className="mb-6">
-                <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
+                <h1 className="flex items-center gap-3 text-2xl font-bold text-foreground sm:text-3xl">
                     <Shield className="text-primary" size={28} /> Kullanıcı Yönetimi
                 </h1>
                 <p className="text-muted-foreground mt-1">Kayıtlı kullanıcıları yönetin ve yeni kayıtları onaylayın.</p>
@@ -101,10 +101,10 @@ export default function UserManagement() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-1 bg-muted/30 p-1 rounded-xl mb-6 w-fit">
+            <div className="mb-6 flex w-full gap-1 overflow-x-auto rounded-xl bg-muted/30 p-1 sm:w-fit">
                 <button
                     onClick={() => setActiveTab('pending')}
-                    className={`py-2 px-5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${activeTab === 'pending'
+                    className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-5 py-2 text-sm font-medium transition-all ${activeTab === 'pending'
                             ? 'bg-card text-foreground shadow-sm'
                             : 'text-muted-foreground hover:text-foreground'
                         }`}
@@ -116,7 +116,7 @@ export default function UserManagement() {
                 </button>
                 <button
                     onClick={() => setActiveTab('approved')}
-                    className={`py-2 px-5 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${activeTab === 'approved'
+                    className={`flex shrink-0 items-center gap-2 whitespace-nowrap rounded-lg px-5 py-2 text-sm font-medium transition-all ${activeTab === 'approved'
                             ? 'bg-card text-foreground shadow-sm'
                             : 'text-muted-foreground hover:text-foreground'
                         }`}
@@ -129,7 +129,7 @@ export default function UserManagement() {
             {activeTab === 'pending' && (
                 <Card className="border-border">
                     <CardContent className="p-0">
-                        <Table>
+                        <Table className="min-w-[760px]">
                             <TableHeader>
                                 <TableRow className="bg-muted/30 hover:bg-muted/30">
                                     <TableHead className="text-muted-foreground font-semibold">Ad Soyad</TableHead>
@@ -192,7 +192,7 @@ export default function UserManagement() {
             {activeTab === 'approved' && (
                 <Card className="border-border">
                     <CardContent className="p-0">
-                        <Table>
+                        <Table className="min-w-[720px]">
                             <TableHeader>
                                 <TableRow className="bg-muted/30 hover:bg-muted/30">
                                     <TableHead className="text-muted-foreground font-semibold">Ad Soyad</TableHead>

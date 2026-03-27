@@ -181,7 +181,7 @@ export default function CabinetDetail() {
     // Product table per category
     const ProductTable = ({ items }) => (
         <div className="rounded-lg border border-border overflow-hidden">
-            <Table>
+            <Table className="min-w-[620px]">
                 <TableHeader>
                     <TableRow className="bg-muted/30 hover:bg-muted/30">
                         <TableHead className="text-muted-foreground font-semibold">Ürün Adı</TableHead>
@@ -213,7 +213,7 @@ export default function CabinetDetail() {
     return (
         <div>
             {/* Header */}
-            <div className="flex items-center gap-4 mb-8">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start">
                 <Button
                     variant="outline"
                     size="icon"
@@ -223,10 +223,10 @@ export default function CabinetDetail() {
                     <ArrowLeft size={20} />
                 </Button>
                 <div className="flex-1">
-                    <h1 className="text-3xl font-bold text-foreground mb-1">
+                    <h1 className="mb-1 text-2xl font-bold text-foreground sm:text-3xl">
                         {cabinet.name}
                     </h1>
-                    <div className="flex gap-4 text-muted-foreground text-sm">
+                    <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:flex-wrap">
                         <span className="flex items-center gap-1.5"><Thermometer size={15} /> {cabinet.temperatureCondition || 'Belirtilmedi'}</span>
                         <span className="flex items-center gap-1.5"><Box size={15} /> {cabinet.capacityInfo || 'Kapasite Yok'}</span>
                         <span className="flex items-center gap-1.5"><Package size={15} /> {products.length} ürün</span>
@@ -235,15 +235,15 @@ export default function CabinetDetail() {
             </div>
 
             {/* Section Title */}
-            <div className="flex items-center gap-3 mb-5">
+            <div className="mb-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
                 <Layers size={20} className="text-primary" />
                 <h2 className="text-lg font-semibold text-foreground m-0">Kategori Bölmeleri</h2>
-                <span className="text-sm text-muted-foreground flex-1">— Bir bölmeye tıklayarak içindeki ürünleri görüntüleyin</span>
+                <span className="flex-1 text-sm text-muted-foreground">— Bir bölmeye tıklayarak içindeki ürünleri görüntüleyin</span>
                 <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setIsCategoryModalOpen(true)}
-                    className="gap-1.5"
+                    className="w-full gap-1.5 sm:w-auto"
                 >
                     <FolderPlus size={15} /> Kategori Ekle
                 </Button>
@@ -284,11 +284,11 @@ export default function CabinetDetail() {
                                 <CollapsibleContent>
                                     <div className="px-5 pb-5">
                                         <Separator className="mb-4" />
-                                        <div className="flex justify-end mb-4">
+                                        <div className="mb-4 flex justify-end">
                                             <Button
                                                 size="sm"
                                                 onClick={() => navigate(`/products?cabinetId=${id}`)}
-                                                className="gap-1.5 shadow-sm"
+                                                className="w-full gap-1.5 shadow-sm sm:w-auto"
                                             >
                                                 <Plus size={15} /> Yeni Ürün Ekle
                                             </Button>
