@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LabManager.DataAccess.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260301125108_AddLabNotes")]
-    partial class AddLabNotes
+    [Migration("20260327172347_InitialCreateBaseline")]
+    partial class InitialCreateBaseline
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -113,6 +113,80 @@ namespace LabManager.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories", (string)null);
+                });
+
+            modelBuilder.Entity("LabManager.Entity.Entities.Device", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BrandModel")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("varchar(2000)");
+
+                    b.Property<int?>("DeviceCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ManualFileUrl")
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DeviceCategoryId");
+
+                    b.ToTable("Devices", (string)null);
+                });
+
+            modelBuilder.Entity("LabManager.Entity.Entities.DeviceCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DeviceCategories", (string)null);
                 });
 
             modelBuilder.Entity("LabManager.Entity.Entities.Drug", b =>
@@ -275,6 +349,14 @@ namespace LabManager.DataAccess.Migrations
 
                     b.Property<int?>("CreatedBy")
                         .HasColumnType("int");
+
+                    b.Property<string>("ExperimentName")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("ExperimentNumber")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -587,6 +669,9 @@ namespace LabManager.DataAccess.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("varchar(200)");
 
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<DateTime?>("LastLogin")
                         .HasColumnType("datetime(6)");
 
@@ -594,6 +679,9 @@ namespace LabManager.DataAccess.Migrations
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
+
+                    b.Property<string>("ProfileImageUrl")
+                        .HasColumnType("longtext");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -615,6 +703,131 @@ namespace LabManager.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("LabManager.Entity.Entities.Warehouse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Warehouses", (string)null);
+                });
+
+            modelBuilder.Entity("LabManager.Entity.Entities.WarehouseCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("WarehouseCategories", (string)null);
+                });
+
+            modelBuilder.Entity("LabManager.Entity.Entities.WarehouseItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("CreatedBy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<decimal>("Quantity")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int?>("WarehouseCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WarehouseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("WarehouseCategoryId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("WarehouseItems", (string)null);
+                });
+
+            modelBuilder.Entity("LabManager.Entity.Entities.Device", b =>
+                {
+                    b.HasOne("LabManager.Entity.Entities.DeviceCategory", "DeviceCategory")
+                        .WithMany("Devices")
+                        .HasForeignKey("DeviceCategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("DeviceCategory");
                 });
 
             modelBuilder.Entity("LabManager.Entity.Entities.LabNote", b =>
@@ -666,9 +879,32 @@ namespace LabManager.DataAccess.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("LabManager.Entity.Entities.WarehouseItem", b =>
+                {
+                    b.HasOne("LabManager.Entity.Entities.WarehouseCategory", "WarehouseCategory")
+                        .WithMany("Items")
+                        .HasForeignKey("WarehouseCategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("LabManager.Entity.Entities.Warehouse", "Warehouse")
+                        .WithMany("Items")
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Warehouse");
+
+                    b.Navigation("WarehouseCategory");
+                });
+
             modelBuilder.Entity("LabManager.Entity.Entities.Category", b =>
                 {
                     b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("LabManager.Entity.Entities.DeviceCategory", b =>
+                {
+                    b.Navigation("Devices");
                 });
 
             modelBuilder.Entity("LabManager.Entity.Entities.Product", b =>
@@ -689,6 +925,16 @@ namespace LabManager.DataAccess.Migrations
             modelBuilder.Entity("LabManager.Entity.Entities.User", b =>
                 {
                     b.Navigation("LabNotes");
+                });
+
+            modelBuilder.Entity("LabManager.Entity.Entities.Warehouse", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("LabManager.Entity.Entities.WarehouseCategory", b =>
+                {
+                    b.Navigation("Items");
                 });
 #pragma warning restore 612, 618
         }

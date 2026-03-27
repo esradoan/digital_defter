@@ -1,27 +1,25 @@
 using System.Text;
+using LabManager.Business.Services.Concrete;
+using LabManager.Business.Services.Interfaces;
+using LabManager.DataAccess.Context;
+using LabManager.DataAccess.Repositories.Concrete;
+using LabManager.DataAccess.Repositories.Interfaces;
+using LabManager.Entity.Entities;
+using LabManager.Entity.Enums;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using LabManager.DataAccess.Context;
-using LabManager.DataAccess.Repositories.Interfaces;
-using LabManager.DataAccess.Repositories.Concrete;
-using LabManager.Business.Services.Interfaces;
-using LabManager.Business.Services.Concrete;
-using LabManager.Entity.Entities;
-using LabManager.Entity.Enums;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ====================
 // 1. DATABASE CONFIGURATION
 // ====================
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("DefaultConnection tanımlı değil.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString)
-    )
-);
+    ApplicationDbContextOptionsFactory.Configure(options, connectionString));
 
 // ====================
 // 2. REPOSITORY REGISTRATION (Dependency Injection)
@@ -116,7 +114,7 @@ if (!Directory.Exists(uploadsDir))
     Directory.CreateDirectory(uploadsDir);
 }
 
-app.UseStaticFiles(); // Bu, default wwwroot içindekiler için (eğer varsa)
+app.UseStaticFiles();
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsDir),
@@ -130,30 +128,42 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-// Test endpoint
-app.MapGet("/", () => "🧬 Lab Manager API is running!");
+app.MapGet("/", () => "Lab Manager API is running!");
+
 // ====================
-// 8. ADMIN SEEDER — İlk admin hesabını oluştur
+// 8. ADMIN SEEDER
 // ====================
 using (var scope = app.Services.CreateScope())
 {
+    var logger = scope.ServiceProvider
+        .GetRequiredService<ILoggerFactory>()
+        .CreateLogger("DatabaseStartup");
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 
-    db.Database.Migrate();
-    
-    if (!db.Set<User>().Any(u => u.Role == UserRole.Admin))
+    try
     {
-        db.Set<User>().Add(new User
+        db.Database.Migrate();
+
+        if (!db.Set<User>().Any(u => u.Role == UserRole.Admin))
         {
-            Username = "admin",
-            Email = "admin@labmanager.com",
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
-            FullName = "Sistem Yöneticisi",
-            Role = UserRole.Admin,
-            IsApproved = true,
-            CreatedAt = DateTime.UtcNow
-        });
-        db.SaveChanges();
+            db.Set<User>().Add(new User
+            {
+                Username = "admin",
+                Email = "admin@labmanager.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123!"),
+                FullName = "Sistem Yöneticisi",
+                Role = UserRole.Admin,
+                IsApproved = true,
+                CreatedAt = DateTime.UtcNow
+            });
+            db.SaveChanges();
+            logger.LogInformation("Varsayılan yönetici hesabı oluşturuldu.");
+        }
+    }
+    catch (Exception ex)
+    {
+        logger.LogCritical(ex, "Uygulama açılışında veritabanı migration işlemi başarısız oldu.");
+        throw;
     }
 }
 
