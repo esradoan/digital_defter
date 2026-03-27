@@ -41,17 +41,17 @@ export default function Dashboard() {
         <div>
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-foreground sm:text-3xl">Genel Bakış</h1>
-                <p className="text-muted-foreground mt-1">Laboratuvar envanterinizin özeti</p>
+                <p className="mt-1 text-muted-foreground">Laboratuvar envanterinizin özeti</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
                 {stats.map((stat) => (
-                    <Card key={stat.title} className="hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5">
+                    <Card key={stat.title} className="transition-all duration-300 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5">
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
                             <CardTitle className="text-sm font-medium text-muted-foreground">
                                 {stat.title}
                             </CardTitle>
-                            <div className={`p-2 rounded-lg ${stat.bgColor}`}>
+                            <div className={`rounded-lg p-2 ${stat.bgColor}`}>
                                 <stat.icon size={20} className={stat.color} />
                             </div>
                         </CardHeader>

@@ -34,7 +34,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                 'border-border bg-card transition-colors duration-300',
                 mobile
                     ? 'flex h-full flex-col'
-                    : 'fixed left-0 top-0 hidden h-screen w-sidebar border-r md:flex'
+                    : 'fixed left-0 top-0 z-40 hidden h-screen w-sidebar shrink-0 border-r md:flex md:flex-col'
             )}
         >
             <div className="p-6">
