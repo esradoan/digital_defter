@@ -106,7 +106,7 @@ export default function Login() {
                                     <Input
                                         value={loginForm.username}
                                         onChange={e => setLoginForm({ ...loginForm, username: e.target.value })}
-                                        placeholder="kullaniciadi"
+                                        placeholder="Kullanıcı adınızı giriniz"
                                         required
                                         autoFocus
                                     />
@@ -118,7 +118,7 @@ export default function Login() {
                                             type={showPassword ? 'text' : 'password'}
                                             value={loginForm.password}
                                             onChange={e => setLoginForm({ ...loginForm, password: e.target.value })}
-                                            placeholder="••••••••"
+                                            placeholder="Şifrenizi giriniz"
                                             required
                                         />
                                         <button
@@ -143,7 +143,7 @@ export default function Login() {
                                     <Input
                                         value={registerForm.fullName}
                                         onChange={e => setRegisterForm({ ...registerForm, fullName: e.target.value })}
-                                        placeholder="Esra Doğan"
+                                        placeholder="Ad ve soyadınızı giriniz"
                                         required
                                         autoFocus
                                     />
@@ -153,7 +153,7 @@ export default function Login() {
                                     <Input
                                         value={registerForm.username}
                                         onChange={e => setRegisterForm({ ...registerForm, username: e.target.value })}
-                                        placeholder="esradogan"
+                                        placeholder="Kullanıcı adı belirleyiniz"
                                         required
                                     />
                                 </div>
@@ -163,7 +163,7 @@ export default function Login() {
                                         type="email"
                                         value={registerForm.email}
                                         onChange={e => setRegisterForm({ ...registerForm, email: e.target.value })}
-                                        placeholder="esra@example.com"
+                                        placeholder="E-posta adresinizi giriniz"
                                         required
                                     />
                                 </div>
@@ -174,7 +174,7 @@ export default function Login() {
                                             type={showPassword ? 'text' : 'password'}
                                             value={registerForm.password}
                                             onChange={e => setRegisterForm({ ...registerForm, password: e.target.value })}
-                                            placeholder="••••••••"
+                                            placeholder="En az 6 karakterli şifre giriniz"
                                             required
                                             minLength={6}
                                         />
