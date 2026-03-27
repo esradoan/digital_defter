@@ -138,6 +138,9 @@ app.MapGet("/", () => "🧬 Lab Manager API is running!");
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    db.Database.Migrate();
+    
     if (!db.Set<User>().Any(u => u.Role == UserRole.Admin))
     {
         db.Set<User>().Add(new User
