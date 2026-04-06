@@ -78,5 +78,13 @@ public class CategoryService : ICategoryService
             ProductCount = 0
         };
     }
+
+    public async Task DeleteAsync(int id)
+    {
+        var category = await _categoryRepository.GetByIdAsync(id);
+        if (category == null)
+            throw new Exception("Kategori bulunamadı");
+        await _categoryRepository.DeleteAsync(category);
+    }
 }
 

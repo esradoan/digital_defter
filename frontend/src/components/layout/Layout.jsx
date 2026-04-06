@@ -3,7 +3,7 @@ import { matchPath, useLocation } from 'react-router-dom';
 import { Menu } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 const routeTitles = [
     { path: '/', title: 'Panel', end: true },
@@ -58,7 +58,8 @@ export default function Layout({ children }) {
 
             {isMobileViewport && (
                 <Dialog open={isMobileNavOpen} onOpenChange={setIsMobileNavOpen}>
-                    <DialogContent className="left-0 top-0 h-dvh max-h-dvh w-[280px] max-w-[85vw] translate-x-0 translate-y-0 rounded-none border-r border-border bg-card p-0 data-[state=closed]:slide-out-to-left data-[state=closed]:slide-out-to-top-0 data-[state=open]:slide-in-from-left data-[state=open]:slide-in-from-top-0 md:hidden">
+                    <DialogContent aria-describedby={undefined} className="left-0 top-0 h-dvh max-h-dvh w-[280px] max-w-[85vw] translate-x-0 translate-y-0 rounded-none border-r border-border bg-card p-0 data-[state=closed]:slide-out-to-left data-[state=closed]:slide-out-to-top-0 data-[state=open]:slide-in-from-left data-[state=open]:slide-in-from-top-0 md:hidden">
+                        <DialogTitle className="sr-only">Navigasyon Menüsü</DialogTitle>
                         <Sidebar mobile onNavigate={() => setIsMobileNavOpen(false)} />
                     </DialogContent>
                 </Dialog>

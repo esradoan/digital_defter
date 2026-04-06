@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Edit, Trash, Box, Thermometer, Package, Layers, ChevronDown, ChevronRight, FolderPlus } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, Trash, Trash2, Box, Thermometer, Package, Layers, ChevronDown, ChevronRight, FolderPlus } from 'lucide-react';
 import cabinetService from '../services/cabinetService';
 import productService from '../services/productService';
 import categoryService from '../services/categoryService';
@@ -146,6 +146,17 @@ export default function CabinetDetail() {
         }
     };
 
+    const handleDeleteCategory = async (catId, catName) => {
+        if (!window.confirm(`"${catName}" kategorisini silmek istediğinize emin misiniz?`)) return;
+        try {
+            await categoryService.delete(catId);
+            fetchData();
+        } catch (err) {
+            console.error('Kategori silme hatası:', err);
+            alert('Kategori silinirken hata oluştu.');
+        }
+    };
+
     const handleCreateCategory = async (e) => {
         e.preventDefault();
         if (!newCategoryName.trim()) return;
@@ -275,9 +286,16 @@ export default function CabinetDetail() {
                                                 {category.name}
                                             </span>
                                         </div>
-                                        <Badge variant="outline" className={isOpen ? `${color.text} ${color.border}` : 'text-muted-foreground'}>
-                                            {categoryProducts.length} ürün
-                                        </Badge>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className={isOpen ? `${color.text} ${color.border}` : 'text-muted-foreground'}>
+                                                {categoryProducts.length} ürün
+                                            </Badge>
+                                            <Trash2
+                                                size={14}
+                                                className="text-muted-foreground hover:text-red-400 cursor-pointer transition-colors"
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteCategory(category.id, category.name); }}
+                                            />
+                                        </div>
                                     </div>
                                 </CollapsibleTrigger>
 

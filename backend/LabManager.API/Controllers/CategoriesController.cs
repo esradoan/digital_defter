@@ -53,6 +53,23 @@ public class CategoriesController : ControllerBase
         var category = await _categoryService.CreateAsync(request.Name, request.Description, request.Icon);
         return Ok(ApiResponse<CategoryDto>.SuccessResponse(category));
     }
+
+    /// <summary>
+    /// Kategori sil
+    /// </summary>
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<ApiResponse<bool>>> Delete(int id)
+    {
+        try
+        {
+            await _categoryService.DeleteAsync(id);
+            return Ok(ApiResponse<bool>.SuccessResponse(true, "Kategori silindi"));
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ApiResponse<bool>.ErrorResponse(ex.Message));
+        }
+    }
 }
 
 public class CreateCategoryRequest
