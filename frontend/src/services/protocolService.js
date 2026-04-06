@@ -1,4 +1,4 @@
-import api, { API_URL } from './api';
+import api from './api';
 
 const protocolService = {
     getAll: async () => {
@@ -18,8 +18,33 @@ const protocolService = {
         return response.data;
     },
 
-    getDownloadUrl: (id) => {
-        return `${API_URL}/protocols/${id}/download`;
+    getPreviewBlobUrl: async (id) => {
+        const response = await api.get(`/protocols/${id}/download`, {
+            responseType: 'blob',
+        });
+        return window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+    },
+
+    downloadFile: async (id) => {
+        const response = await api.get(`/protocols/${id}/download`, {
+            responseType: 'blob',
+        });
+
+        const contentDisposition = response.headers['content-disposition'];
+        let fileName = 'protokol.pdf';
+        if (contentDisposition) {
+            const match = contentDisposition.match(/filename\*?=(?:UTF-8''|"?)([^";]+)/i);
+            if (match) fileName = decodeURIComponent(match[1].replace(/"/g, ''));
+        }
+
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
     },
 
     // Kategori işlemleri

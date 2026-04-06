@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
@@ -26,6 +26,11 @@ export default function Protocols() {
     // Category dialog
     const [isCategoryOpen, setIsCategoryOpen] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
+
+    // Preview dialog
+    const [previewProtocol, setPreviewProtocol] = useState(null);
+    const [previewBlobUrl, setPreviewBlobUrl] = useState(null);
+    const [isPreviewLoading, setIsPreviewLoading] = useState(false);
 
     useEffect(() => {
         fetchData();
@@ -107,6 +112,26 @@ export default function Protocols() {
         }
     };
 
+    const handlePreview = async (protocol) => {
+        setPreviewProtocol(protocol);
+        setIsPreviewLoading(true);
+        try {
+            const url = await protocolService.getPreviewBlobUrl(protocol.id);
+            setPreviewBlobUrl(url);
+        } catch (err) {
+            console.error('Önizleme hatası:', err);
+        } finally {
+            setIsPreviewLoading(false);
+        }
+    };
+
+    const handleClosePreview = () => {
+        if (previewBlobUrl) window.URL.revokeObjectURL(previewBlobUrl);
+        setPreviewProtocol(null);
+        setPreviewBlobUrl(null);
+        setIsPreviewLoading(false);
+    };
+
     const formatFileSize = (bytes) => {
         if (bytes < 1024) return bytes + ' B';
         if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -140,7 +165,12 @@ export default function Protocols() {
                 {getFileIcon(protocol.contentType)}
             </div>
             <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-foreground truncate">{protocol.title}</h4>
+                <button
+                    onClick={() => handlePreview(protocol)}
+                    className="font-medium text-sm text-foreground hover:text-primary hover:underline text-left cursor-pointer truncate max-w-full"
+                >
+                    {protocol.title}
+                </button>
                 {protocol.description && (
                     <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{protocol.description}</p>
                 )}
@@ -157,7 +187,7 @@ export default function Protocols() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-sky-400 hover:text-sky-300 hover:bg-sky-400/10"
-                    onClick={() => window.open(protocolService.getDownloadUrl(protocol.id), '_blank')}
+                    onClick={() => protocolService.downloadFile(protocol.id).catch(err => console.error('İndirme hatası:', err))}
                     title="İndir"
                 >
                     <Download size={16} />
@@ -419,6 +449,39 @@ export default function Protocols() {
                             <FolderPlus size={16} className="mr-2" /> Kategori Oluştur
                         </Button>
                     </form>
+                </DialogContent>
+            </Dialog>
+
+            {/* Preview Dialog */}
+            <Dialog open={!!previewProtocol} onOpenChange={(open) => { if (!open) handleClosePreview(); }}>
+                <DialogContent className="sm:max-w-4xl bg-card border-border">
+                    <DialogHeader>
+                        <DialogTitle>{previewProtocol?.title}</DialogTitle>
+                        {previewProtocol?.description && (
+                            <DialogDescription>{previewProtocol.description}</DialogDescription>
+                        )}
+                    </DialogHeader>
+                    <div className="w-full h-[70vh] bg-muted rounded overflow-hidden flex items-center justify-center">
+                        {isPreviewLoading ? (
+                            <p className="text-muted-foreground text-sm">Yükleniyor...</p>
+                        ) : previewBlobUrl ? (
+                            <iframe
+                                src={previewBlobUrl}
+                                className="w-full h-full"
+                                title={previewProtocol?.title}
+                            />
+                        ) : (
+                            <p className="text-muted-foreground text-sm">Önizleme yüklenemedi.</p>
+                        )}
+                    </div>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => protocolService.downloadFile(previewProtocol.id).catch(console.error)}
+                        >
+                            <Download size={16} className="mr-2" /> İndir
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
