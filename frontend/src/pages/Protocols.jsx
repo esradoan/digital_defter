@@ -9,6 +9,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+const ACCEPTED_PROTOCOL_FILE_TYPES = '.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.webp,.gif,.bmp';
+
+const getFileExtension = (fileName = '') => {
+    const parts = fileName.toLowerCase().split('.');
+    return parts.length > 1 ? `.${parts.pop()}` : '';
+};
+
+const getProtocolType = (protocol = {}) => {
+    const contentType = protocol.contentType?.toLowerCase() || '';
+    const extension = getFileExtension(protocol.fileName);
+
+    if (contentType.includes('pdf') || extension === '.pdf') return 'pdf';
+    if (contentType.startsWith('image/') || ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.bmp'].includes(extension)) return 'image';
+    if (contentType.includes('word') || contentType.includes('msword') || extension === '.doc' || extension === '.docx') return 'word';
+    if (contentType.includes('sheet') || contentType.includes('excel') || extension === '.xls' || extension === '.xlsx') return 'excel';
+
+    return 'other';
+};
+
+const isPreviewableProtocol = (protocol) => ['pdf', 'image'].includes(getProtocolType(protocol));
+
 export default function Protocols() {
     const [protocols, setProtocols] = useState([]);
     const [categories, setCategories] = useState([]);
@@ -70,7 +91,7 @@ export default function Protocols() {
             fetchData();
         } catch (err) {
             console.error('Yükleme hatası:', err);
-            alert('Dosya yüklenirken hata oluştu.');
+            alert(err.response?.data?.message || 'Dosya yüklenirken hata oluştu.');
         } finally {
             setUploading(false);
         }
@@ -113,7 +134,15 @@ export default function Protocols() {
     };
 
     const handlePreview = async (protocol) => {
+        if (previewBlobUrl) window.URL.revokeObjectURL(previewBlobUrl);
         setPreviewProtocol(protocol);
+        setPreviewBlobUrl(null);
+
+        if (!isPreviewableProtocol(protocol)) {
+            setIsPreviewLoading(false);
+            return;
+        }
+
         setIsPreviewLoading(true);
         try {
             const url = await protocolService.getPreviewBlobUrl(protocol.id);
@@ -144,6 +173,8 @@ export default function Protocols() {
         if (contentType?.includes('spreadsheet') || contentType?.includes('excel')) return <FileSpreadsheet size={20} className="text-green-400" />;
         return <File size={20} className="text-sky-400" />;
     };
+
+    const previewType = getProtocolType(previewProtocol || {});
 
     // Arama filtresi
     const filteredProtocols = protocols.filter(p =>
@@ -187,7 +218,7 @@ export default function Protocols() {
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-sky-400 hover:text-sky-300 hover:bg-sky-400/10"
-                    onClick={() => protocolService.downloadFile(protocol.id).catch(err => console.error('İndirme hatası:', err))}
+                    onClick={() => protocolService.downloadFile(protocol).catch(err => console.error('İndirme hatası:', err))}
                     title="İndir"
                 >
                     <Download size={16} />
@@ -362,13 +393,14 @@ export default function Protocols() {
                                     <div>
                                         <Upload size={24} className="mx-auto text-muted-foreground mb-2" />
                                         <p className="text-sm text-muted-foreground">Dosya seçmek için tıklayın</p>
-                                        <p className="text-xs text-muted-foreground mt-1">PDF, Word, Excel, resim vb.</p>
+                                        <p className="text-xs text-muted-foreground mt-1">PDF, Word, Excel ve resim dosyaları desteklenir.</p>
                                     </div>
                                 )}
                             </div>
                             <input
                                 ref={fileInputRef}
                                 type="file"
+                                accept={ACCEPTED_PROTOCOL_FILE_TYPES}
                                 className="hidden"
                                 onChange={e => setSelectedFile(e.target.files?.[0] || null)}
                             />
@@ -464,12 +496,23 @@ export default function Protocols() {
                     <div className="w-full h-[70vh] bg-muted rounded overflow-hidden flex items-center justify-center">
                         {isPreviewLoading ? (
                             <p className="text-muted-foreground text-sm">Yükleniyor...</p>
-                        ) : previewBlobUrl ? (
+                        ) : previewType === 'pdf' && previewBlobUrl ? (
                             <iframe
                                 src={previewBlobUrl}
                                 className="w-full h-full"
                                 title={previewProtocol?.title}
                             />
+                        ) : previewType === 'image' && previewBlobUrl ? (
+                            <img
+                                src={previewBlobUrl}
+                                alt={previewProtocol?.title}
+                                className="max-h-full max-w-full object-contain"
+                            />
+                        ) : previewType === 'word' || previewType === 'excel' ? (
+                            <div className="px-6 text-center">
+                                <p className="text-sm text-foreground">Bu dosya türü uygulama içinde önizlenemiyor.</p>
+                                <p className="mt-2 text-sm text-muted-foreground">Dosyayı görmek için indirip bilgisayarınızda açın.</p>
+                            </div>
                         ) : (
                             <p className="text-muted-foreground text-sm">Önizleme yüklenemedi.</p>
                         )}
@@ -477,7 +520,7 @@ export default function Protocols() {
                     <DialogFooter>
                         <Button
                             variant="outline"
-                            onClick={() => protocolService.downloadFile(previewProtocol.id).catch(console.error)}
+                            onClick={() => protocolService.downloadFile(previewProtocol).catch(console.error)}
                         >
                             <Download size={16} className="mr-2" /> İndir
                         </Button>

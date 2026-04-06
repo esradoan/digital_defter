@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using LabManager.API.Infrastructure;
 using LabManager.Business.DTOs.Protocol;
 using LabManager.Business.DTOs.Common;
 using LabManager.Business.Services.Interfaces;
@@ -42,6 +43,13 @@ public class ProtocolsController : ControllerBase
         if (file == null || file.Length == 0)
             return BadRequest(ApiResponse<ProtocolDto>.ErrorResponse("Dosya seçilmedi"));
 
+        var originalFileName = Path.GetFileName(file.FileName);
+        if (string.IsNullOrWhiteSpace(originalFileName))
+            return BadRequest(ApiResponse<ProtocolDto>.ErrorResponse("Geçerli bir dosya adı gerekli"));
+
+        if (!ProtocolFileTypes.TryNormalize(originalFileName, file.ContentType, out var normalizedContentType))
+            return BadRequest(ApiResponse<ProtocolDto>.ErrorResponse("Desteklenen dosya türleri: PDF, Word, Excel ve resim dosyaları"));
+
         try
         {
             // Uploads klasörünü oluştur
@@ -49,7 +57,7 @@ public class ProtocolsController : ControllerBase
             Directory.CreateDirectory(uploadsDir);
 
             // Benzersiz dosya adı
-            var uniqueFileName = $"{Guid.NewGuid()}_{file.FileName}";
+            var uniqueFileName = $"{Guid.NewGuid()}_{originalFileName}";
             var filePath = Path.Combine(uploadsDir, uniqueFileName);
 
             // Dosyayı kaydet
@@ -61,9 +69,9 @@ public class ProtocolsController : ControllerBase
             var protocol = await _protocolService.CreateAsync(
                 title,
                 description,
-                file.FileName,
+                originalFileName,
                 filePath,
-                file.ContentType,
+                normalizedContentType,
                 file.Length,
                 protocolCategoryId);
 
@@ -108,7 +116,8 @@ public class ProtocolsController : ControllerBase
             return NotFound("Dosya bulunamadı");
 
         var fileBytes = await System.IO.File.ReadAllBytesAsync(filePath);
-        return File(fileBytes, contentType, fileName);
+        var normalizedContentType = ProtocolFileTypes.GetContentType(fileName, contentType);
+        return File(fileBytes, normalizedContentType, Path.GetFileName(fileName));
     }
 
     // === Kategori Endpoint'leri ===
