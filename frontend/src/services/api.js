@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5274/api';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5274/api';
 
 export const getAssetUrl = (path) => {
     if (!path) return '';

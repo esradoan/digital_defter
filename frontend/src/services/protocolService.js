@@ -1,6 +1,4 @@
-import api from './api';
-
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5274';
+import api, { API_URL } from './api';
 
 const protocolService = {
     getAll: async () => {
@@ -21,7 +19,7 @@ const protocolService = {
     },
 
     getDownloadUrl: (id) => {
-        return `${API_BASE}/api/protocols/${id}/download`;
+        return `${API_URL}/protocols/${id}/download`;
     },
 
     // Kategori işlemleri
