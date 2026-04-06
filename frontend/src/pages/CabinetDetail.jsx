@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import {
     Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
@@ -30,6 +30,10 @@ export default function CabinetDetail() {
     const [isProductModalOpen, setIsProductModalOpen] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+    const [isDeleteCategoryModalOpen, setIsDeleteCategoryModalOpen] = useState(false);
+    const [deletingCategory, setDeletingCategory] = useState(null);
+    const [isDeleteProductModalOpen, setIsDeleteProductModalOpen] = useState(false);
+    const [deletingProduct, setDeletingProduct] = useState(null);
     const [editingProductId, setEditingProductId] = useState(null);
     const [activeCategoryId, setActiveCategoryId] = useState(null);
     const [newCategoryName, setNewCategoryName] = useState('');
@@ -123,14 +127,20 @@ export default function CabinetDetail() {
         }
     };
 
-    const handleDelete = async (productId, productName) => {
-        if (!window.confirm(`"${productName || 'Bu ürün'}" silinecek. Emin misiniz?`)) return;
+    const handleDelete = (productId, productName) => {
+        setDeletingProduct({ id: productId, name: productName });
+        setIsDeleteProductModalOpen(true);
+    };
+
+    const confirmDeleteProduct = async () => {
         try {
-            await productService.delete(productId);
+            await productService.delete(deletingProduct.id);
+            setIsDeleteProductModalOpen(false);
+            setDeletingProduct(null);
             fetchData();
         } catch (err) {
             console.error('Ürün silme hatası:', err.response?.data || err);
-            alert('Ürün silinirken hata oluştu: ' + (err.response?.data?.message || err.message));
+            alert('Ürün silinirken hata oluştu.');
         }
     };
 
@@ -146,10 +156,16 @@ export default function CabinetDetail() {
         }
     };
 
-    const handleDeleteCategory = async (catId, catName) => {
-        if (!window.confirm(`"${catName}" kategorisini silmek istediğinize emin misiniz?`)) return;
+    const handleDeleteCategory = (catId, catName, productCount) => {
+        setDeletingCategory({ id: catId, name: catName, productCount });
+        setIsDeleteCategoryModalOpen(true);
+    };
+
+    const confirmDeleteCategory = async () => {
         try {
-            await categoryService.delete(catId);
+            await categoryService.delete(deletingCategory.id);
+            setIsDeleteCategoryModalOpen(false);
+            setDeletingCategory(null);
             fetchData();
         } catch (err) {
             console.error('Kategori silme hatası:', err);
@@ -199,6 +215,7 @@ export default function CabinetDetail() {
                         <TableHead className="text-muted-foreground font-semibold">Katalog No</TableHead>
                         <TableHead className="text-muted-foreground font-semibold text-center">Miktar</TableHead>
                         <TableHead className="text-muted-foreground font-semibold text-center">Adet</TableHead>
+                        <TableHead className="text-muted-foreground font-semibold text-center w-12"></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -213,6 +230,16 @@ export default function CabinetDetail() {
                             </TableCell>
                             <TableCell className="text-center text-muted-foreground text-sm">
                                 {product.unit || '-'}
+                            </TableCell>
+                            <TableCell className="text-center">
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 text-red-400 hover:text-red-300 hover:bg-red-400/10"
+                                    onClick={() => handleDelete(product.id, product.name)}
+                                >
+                                    <Trash2 size={15} />
+                                </Button>
                             </TableCell>
                         </TableRow>
                     ))}
@@ -291,9 +318,9 @@ export default function CabinetDetail() {
                                                 {categoryProducts.length} ürün
                                             </Badge>
                                             <Trash2
-                                                size={14}
-                                                className="text-muted-foreground hover:text-red-400 cursor-pointer transition-colors"
-                                                onClick={(e) => { e.stopPropagation(); handleDeleteCategory(category.id, category.name); }}
+                                                size={16}
+                                                className="text-red-400 hover:text-red-300 cursor-pointer transition-colors"
+                                                onClick={(e) => { e.stopPropagation(); handleDeleteCategory(category.id, category.name, categoryProducts.length); }}
                                             />
                                         </div>
                                     </div>
@@ -401,6 +428,62 @@ export default function CabinetDetail() {
                                 onClick={handleDeleteCabinet}
                             >
                                 Evet
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Category Modal */}
+            <Dialog open={isDeleteCategoryModalOpen} onOpenChange={setIsDeleteCategoryModalOpen}>
+                <DialogContent className="sm:max-w-sm bg-card border-border text-center">
+                    <div className="flex flex-col items-center pt-4">
+                        <div className="mb-4 flex items-center justify-center h-16 w-16 rounded-full bg-destructive/10">
+                            <Trash2 className="h-8 w-8 text-destructive" />
+                        </div>
+                        <DialogHeader className="text-center">
+                            <DialogTitle className="text-center">Kategoriyi sil?</DialogTitle>
+                            <DialogDescription className="text-center leading-relaxed">
+                                <span className="font-medium text-foreground">"{deletingCategory?.name}"</span> kategorisi silinecek.
+                                {deletingCategory?.productCount > 0 && (
+                                    <span className="block mt-1 text-destructive font-medium">
+                                        İçindeki {deletingCategory.productCount} ürün de kalıcı olarak silinecek!
+                                    </span>
+                                )}
+                                <span className="block mt-1">Bu işlem geri alınamaz.</span>
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex gap-3 w-full mt-6">
+                            <Button variant="outline" className="flex-1" onClick={() => setIsDeleteCategoryModalOpen(false)}>
+                                Hayır
+                            </Button>
+                            <Button variant="destructive" className="flex-1" onClick={confirmDeleteCategory}>
+                                Evet, Sil
+                            </Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Product Modal */}
+            <Dialog open={isDeleteProductModalOpen} onOpenChange={setIsDeleteProductModalOpen}>
+                <DialogContent className="sm:max-w-sm bg-card border-border text-center">
+                    <div className="flex flex-col items-center pt-4">
+                        <div className="mb-4 flex items-center justify-center h-16 w-16 rounded-full bg-destructive/10">
+                            <Trash className="h-8 w-8 text-destructive" />
+                        </div>
+                        <DialogHeader className="text-center">
+                            <DialogTitle className="text-center">Ürünü sil?</DialogTitle>
+                            <DialogDescription className="text-center leading-relaxed">
+                                <span className="font-medium text-foreground">"{deletingProduct?.name || 'Bu ürün'}"</span> kalıcı olarak silinecek. Bu işlem geri alınamaz.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="flex gap-3 w-full mt-6">
+                            <Button variant="outline" className="flex-1" onClick={() => setIsDeleteProductModalOpen(false)}>
+                                Hayır
+                            </Button>
+                            <Button variant="destructive" className="flex-1" onClick={confirmDeleteProduct}>
+                                Evet, Sil
                             </Button>
                         </div>
                     </div>

@@ -84,6 +84,11 @@ public class CategoryService : ICategoryService
         var category = await _categoryRepository.GetByIdAsync(id);
         if (category == null)
             throw new Exception("Kategori bulunamadı");
+
+        var products = await _productRepository.FindAsync(p => p.CategoryId == id);
+        foreach (var product in products)
+            await _productRepository.DeleteAsync(product);
+
         await _categoryRepository.DeleteAsync(category);
     }
 }
