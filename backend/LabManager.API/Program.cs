@@ -117,10 +117,19 @@ if (!Directory.Exists(uploadsDir))
 }
 
 app.UseStaticFiles();
+var allowedOrigins = new[] { "https://labyonetimi.com", "https://www.labyonetimi.com" };
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploadsDir),
-    RequestPath = "/uploads"
+    RequestPath = "/uploads",
+    OnPrepareResponse = ctx =>
+    {
+        var origin = ctx.Context.Request.Headers["Origin"].ToString();
+        if (allowedOrigins.Contains(origin))
+        {
+            ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", origin);
+        }
+    }
 });
 
 app.UseCors("AllowFrontend");
