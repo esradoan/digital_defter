@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { getAssetUrl } from '../../services/api';
 
 export default function Sidebar({ mobile = false, onNavigate }) {
     const location = useLocation();
@@ -82,7 +83,7 @@ export default function Sidebar({ mobile = false, onNavigate }) {
                     <div className="mb-2 flex items-center gap-3 px-3 py-2">
                         <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border border-primary/20 bg-primary/20">
                             {user.profileImageUrl ? (
-                                <img src={`http://localhost:5274${user.profileImageUrl}`} alt="User" className="h-full w-full object-cover" />
+                                <img src={getAssetUrl(user.profileImageUrl)} alt="User" className="h-full w-full object-cover" />
                             ) : (
                                 <User size={16} className="text-primary" />
                             )}

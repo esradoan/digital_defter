@@ -2,6 +2,12 @@ import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5274/api';
 
+export const getAssetUrl = (path) => {
+    if (!path) return '';
+    const baseUrl = API_URL.endsWith('/api') ? API_URL.slice(0, -4) : API_URL;
+    return `${baseUrl}${path}`;
+};
+
 const api = axios.create({
     baseURL: API_URL,
     headers: {

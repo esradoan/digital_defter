@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Monitor, Plus, Trash, Trash2, Edit2, FolderPlus, ChevronDown, ChevronRight, Layers, Cpu, Search, FileText, Upload } from 'lucide-react';
 import deviceService from '../services/deviceService';
+import { getAssetUrl } from '../services/api';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -185,7 +186,7 @@ export default function Devices() {
                         <>
                             <span>•</span>
                             <a
-                                href={`http://localhost:5274${device.manualFileUrl}`}
+                                href={getAssetUrl(device.manualFileUrl)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center gap-1 text-primary hover:underline font-medium"

@@ -3,6 +3,7 @@ import { Settings as SettingsIcon, User, Palette, Download, Shield, Save, CheckC
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import authService from '../services/authService';
+import { getAssetUrl } from '../services/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -137,7 +138,7 @@ export default function Settings() {
                                         <div className="relative group cursor-pointer">
                                             <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden border-2 border-primary/20 group-hover:border-primary transition-colors">
                                                 {user?.profileImageUrl ? (
-                                                    <img src={`http://localhost:5274${user.profileImageUrl}`} alt="Profile" className="w-full h-full object-cover" />
+                                                    <img src={getAssetUrl(user.profileImageUrl)} alt="Profile" className="w-full h-full object-cover" />
                                                 ) : (
                                                     <User size={40} className="text-primary/50" />
                                                 )}
